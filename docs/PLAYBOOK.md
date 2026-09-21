@@ -5,7 +5,7 @@ Repository: https://github.com/Whoisnicko/game_pawsandclaws
 
 ## Cloudflare Workers
 Deployment model: Workers + Static Assets  
-Production URL: pendiente de configurar.
+Production URL: https://game-pawsandclaws.nickuz.workers.dev
 
 ## Cloudflare build settings
 - Production branch: `main`
