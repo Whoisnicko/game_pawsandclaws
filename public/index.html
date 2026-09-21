@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Paws & Claws</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at top, rgba(91, 141, 239, .22), transparent 42%),
+        #10131a;
+      color: #f7f8fb;
+    }
+    main {
+      width: min(680px, calc(100% - 32px));
+      padding: 42px;
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 24px;
+      background: rgba(255,255,255,.06);
+      box-shadow: 0 24px 80px rgba(0,0,0,.35);
+      text-align: center;
+    }
+    h1 { margin: 0 0 12px; font-size: clamp(2.4rem, 8vw, 5rem); }
+    p { margin: 8px 0; color: #c9cfdb; line-height: 1.6; }
+    .status {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(78, 203, 113, .14);
+      border: 1px solid rgba(78, 203, 113, .38);
+      color: #b8f3c8;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>🐾 Paws & Claws</h1>
+    <p>Repositorio y despliegue web preparados.</p>
+    <p>La versión jugable reemplazará esta pantalla cuando subamos el juego.</p>
+    <div class="status">Worker Static Assets ready</div>
+  </main>
+</body>
+</html>
