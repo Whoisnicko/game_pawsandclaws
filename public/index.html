@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='52' font-size='52'%3E%F0%9F%90%BE%3C/text%3E%3C/svg%3E">
 <title>Paws & Claws Beta 0.44 — Image Menu UI</title>
 <style>
 :root{
@@ -505,7 +506,7 @@ body.touch-mode #dialog{width:min(88vw,40rem);bottom:6.85rem}
 /* ===== Beta 0.30 AAA UI + combat feel pass ===== */
 :root{--ornate-edge:rgba(214,182,112,.32);--ornate-glow:rgba(214,182,112,.11);--ornate-shadow:rgba(0,0,0,.32)}
 #playerHud,.uiPanel,.window,#message,#hotbar,#miniWrap{box-shadow:0 1rem 2.1rem var(--ornate-shadow), inset 0 1px 0 rgba(255,255,255,.045)}
-.uiPanel,.window,#message{position:relative}
+.uiPanel,.window{position:relative}
 .uiPanel::before,.window::before,#message::before{content:"";position:absolute;inset:.34rem;border-radius:inherit;pointer-events:none;border:1px solid rgba(255,255,255,.03)}
 .uiPanel::after,.window::after,#message::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;box-shadow:inset 0 0 0 1px rgba(214,182,112,.06)}
 .playerCard{background:linear-gradient(180deg,rgba(12,21,31,.96),rgba(8,14,22,.98));border-color:rgba(104,132,158,.42)}
@@ -1526,7 +1527,7 @@ body.touch-mode .hudPremiumBuff {
 }
 #miniWrap{
   right:max(1rem, calc(50vw - min(94vw,3000px)/2 + 1rem))!important;
-  top:7.2rem!important;
+  top:calc(var(--mini-top, 7.2rem) + .6rem)!important;
   width:12.4rem!important;
   height:8.1rem!important;
   padding:.28rem!important;
@@ -1798,6 +1799,15 @@ body.touch-mode .hudPremiumBuff {
 @media(max-aspect-ratio:16/9){.imageMenuStage{width:100vw;height:56.25vw}}
 @media(min-aspect-ratio:16/9){.imageMenuStage{height:100vh;width:177.777778vh}}
 
+/* Beta 0.44 UI fix: el panel del jugador no debe invadir la barra de botones centrada */
+body:not(.touch-mode) #playerHud{width:min(33rem,31vw,calc(50vw - 17.5rem - max(1rem, calc(50vw - min(94vw,3000px)/2 + 1rem))))!important;min-width:16rem}
+@media (min-width:901px) and (max-width:1399px){
+  body:not(.touch-mode) #playerHud{width:25rem!important;min-width:0}
+  body:not(.touch-mode) #topActions{left:max(1rem, calc(50vw - min(94vw,3000px)/2 + 1rem))!important;top:11.2rem!important;transform:none!important}
+}
+/* Beta 0.44 UI fix (táctil): el minimapa queda centrado en su marco y sin números fuera del panel del jugador */
+body.touch-mode #minimap{transform:none!important}
+body.touch-mode #playerHud{width:22rem!important;max-width:none!important}
 </style>
 </head>
 <body>
@@ -3050,8 +3060,8 @@ function drawWorldNpc(n){
   }
   if(!h){drawAssetBottom(n.asset,n.x,n.y,w);const im=drawAssets[n.asset];h=im?assetSize(n.asset,w).h:72;}
   drawOutlinedText(n.name,s.x,s.y-h-8,'#fff',12);
-  if(n.role){ctx.fillStyle='rgba(8,12,16,.76)';ctx.fillRect(Math.round(s.x-28),Math.round(s.y-h-24),56,12);drawOutlinedText(n.role,s.x,s.y-h-14,n.roleColor||'#ddd',8)}
-  if(players[0]&&dist(players[0],n)<112&&!overlay){ctx.fillStyle='rgba(8,12,16,.82)';ctx.fillRect(Math.round(s.x-54),Math.round(s.y-h-40),108,20);drawOutlinedText(worldNpcHintLabel(n),s.x,s.y-h-25,'#fff',9)}
+  if(n.role){ctx.fillStyle='rgba(8,12,16,.76)';ctx.fillRect(Math.round(s.x-28),Math.round(s.y-h-38),56,12);drawOutlinedText(n.role,s.x,s.y-h-28,n.roleColor||'#ddd',8)}
+  if(players[0]&&dist(players[0],n)<112&&!overlay){ctx.fillStyle='rgba(8,12,16,.82)';ctx.fillRect(Math.round(s.x-54),Math.round(s.y-h-64),108,20);drawOutlinedText(worldNpcHintLabel(n),s.x,s.y-h-49,'#fff',9)}
 }
 function drawChest(ch){
   const key=ch.asset,s=worldToScreen(ch.x,ch.y),sheet=drawAssets[key+'_sheet'],baseW=TILE_SIZE*1.46,pulse=(Math.sin(worldClock*2.6+ch.x*.0013)+1)/2;
@@ -3270,7 +3280,7 @@ function renderItemDetail(p,it){
 }
 function renderInventory(){
   const p=players.find(p=>p.id===activeInventoryPlayer)||players[0];document.getElementById('invSub').textContent=`${p.name} · ${p.role} · juego pausado`;document.getElementById('coinLabel').textContent='Oro '+gold; const tab1=document.getElementById('tabP1'),tab2=document.getElementById('tabP2'); if(tab1)tab1.classList.toggle('active',activeInventoryPlayer===1); if(tab2)tab2.classList.toggle('active',activeInventoryPlayer===2);
-  pctx.clearRect(0,0,paperCanvas.width,paperCanvas.height);pctx.imageSmoothingEnabled=false;const im=drawAssets[p.sheet];if(im){const f=frameXY(0);pctx.drawImage(im,f.sx,f.sy,SHEET_CELL,SHEET_CELL,112,148,168,168)}pctx.fillStyle='#fff';pctx.textAlign='center';pctx.font='bold 19px monospace';pctx.fillText(p.name,195,378);pctx.font='12px monospace';pctx.fillStyle='#aab5bf';pctx.fillText(`ATQ ${p.attack} · DEF ${p.def} · HP ${p.maxHp} · MP ${p.maxMp}`,195,401);
+  pctx.clearRect(0,0,paperCanvas.width,paperCanvas.height);pctx.imageSmoothingEnabled=false;const im=drawAssets[p.sheet];if(im){const f=frameXY(0);pctx.drawImage(im,f.sx,f.sy,SHEET_CELL,SHEET_CELL,112,148,168,168)}pctx.fillStyle='#fff';pctx.textAlign='center';pctx.font='bold 19px monospace';pctx.fillText(p.name,195,338);pctx.font='11px monospace';pctx.fillStyle='#aab5bf';pctx.fillText(`ATQ ${p.attack} · DEF ${p.def}`,195,355);pctx.fillText(`HP ${p.maxHp} · MP ${p.maxMp}`,195,370);
   const ids={head:'slotHead',weapon:'slotWeapon',armor:'slotArmor',charm:'slotCharm',boots:'slotBoots',artifact:'slotArtifact'};Object.keys(ids).forEach(k=>{const el=document.getElementById(ids[k]),it=p.equip[k];el.style.borderColor=it?it.color:'#405166';el.innerHTML=`<div class="label">${SLOT_LABEL[k]}</div>${it?`<div class="slotEquip"><span class="slotIconFrame ${uiRarityClass(it)}"><img src="${ASSET_PATHS[it.asset]}"></span><div class="slotMeta"><div class="slotName" style="color:${it.color}">${it.name}</div><div class="slotPower">Poder +${it.power}</div></div></div>`:`<div class="slotEmpty">Vacío</div>`}`});
   const bag=document.getElementById('bag');bag.innerHTML=p.inventory.length?p.inventory.map(it=>{const equipped=p.equip[it.slot]===it;return `<button class="item${equipped?' equippedItem':''}" data-equip="${it.id}" data-rarity="${it.rarity}"><span class="itemIconFrame ${uiRarityClass(it)}"><img src="${ASSET_PATHS[it.asset]}"></span><div><div class="tier" style="color:${it.color}">${it.rarity}${equipped?' · EQUIPADO':''}</div><div class="iname">${it.name}</div><div class="imeta">${SLOT_LABEL[it.slot]} · Poder +${it.power}</div></div></button>`}).join(''):`<div class="muted">Mochila vacía.</div>`;
   const selected=p.inventory.find(i=>i.id===selectedItemId)||p.inventory[0]||Object.values(p.equip).find(Boolean)||null;renderItemDetail(p,selected);
@@ -3412,6 +3422,15 @@ const controls=['KeyW','KeyA','KeyS','KeyD','KeyF','KeyG','KeyH','KeyE','KeyI','
 window.addEventListener('keydown',e=>{if(!UI.start.classList.contains('hidden')||!controls.includes(e.code))return;e.preventDefault();if(e.code==='KeyE'){interact();return}if(e.code==='KeyI'){overlay==='inventory'&&activeInventoryPlayer===1?closeOverlay():openInventory(1);return}if(e.code==='KeyP'&&playerCount===2){overlay==='inventory'&&activeInventoryPlayer===2?closeOverlay():openInventory(2);return}if(e.code==='KeyQ'){overlay==='quest'?closeOverlay():openQuestLog();return}if(e.code==='KeyT'){overlay==='skills'?closeOverlay():openSkills();return}if(e.code==='KeyR'){if(!overlay)usePotion(players[0]);return}if(!overlay)keys[e.code]=true});
 window.addEventListener('keyup',e=>{keys[e.code]=false});
 window.addEventListener('blur',()=>{for(const k in keys)keys[k]=false});
+
+// El minimapa se apila debajo del Diario, sea cual sea su altura (evita superposición).
+(() => {
+  const tracker = document.getElementById('questTracker');
+  if (!tracker || !window.ResizeObserver) return;
+  const sync = () => tracker.parentElement.style.setProperty('--mini-top', (tracker.offsetTop + tracker.offsetHeight) + 'px');
+  new ResizeObserver(sync).observe(tracker);
+  sync();
+})();
 
 // Bootstrap
 bindTouchControls();
