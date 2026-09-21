@@ -1804,6 +1804,13 @@ body:not(.touch-mode) #playerHud{width:min(33rem,31vw,calc(50vw - 17.5rem - max(
 /* Beta 0.44 UI fix (táctil): el minimapa queda centrado en su marco y sin números fuera del panel del jugador */
 body.touch-mode #minimap{transform:none!important}
 body.touch-mode #playerHud{width:22rem!important;max-width:none!important}
+/* Fix: el mensaje inferior no debe pisar la barra de acciones en pantallas medianas */
+@media (max-width:1400px){
+  body:not(.touch-mode) #message{bottom:5.6rem!important;max-width:min(20rem,calc(50vw - 20rem))!important}
+}
+/* Fix: los slots inferiores del inventario (collar/botas/artefacto) no se tocan */
+#inventoryLayer #slotCharm,#inventoryLayer #slotBoots{bottom:5.4rem!important;}
+#inventoryLayer #slotArtifact{bottom:.5rem!important;}
 </style>
 </head>
 <body>
