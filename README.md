@@ -4,8 +4,10 @@ Repositorio oficial del juego web **Paws & Claws**.
 
 ## Estructura
 
-- `index.html`: entrada del juego para Cloudflare Pages.
-- `assets/`: sprites, imágenes, audio y otros recursos.
+- `public/index.html`: entrada pública del juego.
+- `public/assets/`: sprites, imágenes, audio, fuentes y otros recursos del juego.
+- `wrangler.jsonc`: configuración de Cloudflare Workers Static Assets.
+- `package.json`: versión de Wrangler y comandos locales.
 - `docs/GAME.md`: documentación viva del juego.
 - `docs/PLAYBOOK.md`: enlaces operativos, despliegue y workflow.
 
@@ -16,4 +18,6 @@ Repositorio oficial del juego web **Paws & Claws**.
 
 ## Deploy
 
-El objetivo es publicar `main` automáticamente mediante Cloudflare Pages.
+`main` se publicará automáticamente mediante Cloudflare Workers + Static Assets.
+
+El proyecto no ejecuta código de Worker en servidor actualmente: Cloudflare sirve únicamente los archivos estáticos de `public/`.
