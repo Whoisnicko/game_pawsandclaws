@@ -1811,6 +1811,16 @@ body.touch-mode #playerHud{width:22rem!important;max-width:none!important}
 /* Fix: los slots inferiores del inventario (collar/botas/artefacto) no se tocan */
 #inventoryLayer #slotCharm,#inventoryLayer #slotBoots{bottom:5.4rem!important;}
 #inventoryLayer #slotArtifact{bottom:.5rem!important;}
+/* Fix (Claude): en retrato angosto (celulares) el HUD del jugador (22rem fijo) tapaba los botones
+   INV/QUEST/POTION y el aviso de girar pantalla quedaba encima de todo. Se angosta el HUD para que
+   quepa junto a la barra de botones y el aviso baja debajo de ambos. */
+@media (orientation:portrait) and (max-width:900px){
+  body.touch-mode #playerHud{width:min(50vw,12.5rem)!important;max-width:50vw!important}
+  body.touch-mode #playerHud .hudName{font-size:.72rem!important}
+  body.touch-mode #playerHud .hudRole{font-size:.44rem!important}
+  body.touch-mode #rotateHint{left:.6rem!important;right:.6rem!important;top:10.4rem!important;transform:none!important;text-align:center!important;white-space:normal!important}
+}
+
 </style>
 </head>
 <body>
@@ -1958,6 +1968,17 @@ const minimap = document.getElementById('minimap');
 const mctx = minimap.getContext('2d');
 const paperCanvas = document.getElementById('paperCanvas');
 const pctx = paperCanvas.getContext('2d');
+const PAPER_W = 390, PAPER_H = 520;
+function syncPaperCanvas(){
+  const r = paperCanvas.getBoundingClientRect();
+  if(r.width < 1 || r.height < 1) return false;
+  const bufW = Math.round(r.width*dpr), bufH = Math.round(r.height*dpr);
+  if(paperCanvas.width !== bufW) paperCanvas.width = bufW;
+  if(paperCanvas.height !== bufH) paperCanvas.height = bufH;
+  pctx.setTransform(dpr*(r.width/PAPER_W), 0, 0, dpr*(r.height/PAPER_H), 0, 0);
+  pctx.imageSmoothingEnabled = false;
+  return true;
+}
 
 const UI = {
   start: document.getElementById('startScreen'), screen: document.getElementById('gameScreen'), playerHud: document.getElementById('playerHud'), tracker: document.getElementById('questTracker'),
@@ -2240,7 +2261,7 @@ function loadAssets(){
 // Responsive fullscreen viewport
 // ---------------------------
 function resizeGame(){
-  dpr = touchMode ? Math.min(2,Math.max(1,Math.floor(window.devicePixelRatio||1))) : 1;
+  dpr = Math.min(2,Math.max(1,window.devicePixelRatio||1));
   const vv = window.visualViewport;
   const sw = Math.max(320, Math.round(vv ? vv.width : window.innerWidth));
   const sh = Math.max(240, Math.round(vv ? vv.height : window.innerHeight));
@@ -2253,6 +2274,7 @@ function resizeGame(){
   viewport.worldW=viewport.w/worldScale; viewport.worldH=viewport.h/(PROJECTION_Y*worldScale);
   const mr=minimap.getBoundingClientRect(); minimap.width=Math.max(1,Math.round(mr.width*dpr)); minimap.height=Math.max(1,Math.round(mr.height*dpr));
   mctx.setTransform(dpr,0,0,dpr,0,0); mctx.imageSmoothingEnabled=false;
+  if(overlay==='inventory') renderInventory();
   clampCamera();
 }
 window.addEventListener('resize',resizeGame,{passive:true});
@@ -3293,7 +3315,7 @@ function renderItemDetail(p,it){
 }
 function renderInventory(){
   const p=players.find(p=>p.id===activeInventoryPlayer)||players[0];document.getElementById('invSub').textContent=`${p.name} · ${p.role} · juego pausado`;document.getElementById('coinLabel').textContent='Oro '+gold; const tab1=document.getElementById('tabP1'),tab2=document.getElementById('tabP2'); if(tab1)tab1.classList.toggle('active',activeInventoryPlayer===1); if(tab2)tab2.classList.toggle('active',activeInventoryPlayer===2);
-  pctx.clearRect(0,0,paperCanvas.width,paperCanvas.height);pctx.imageSmoothingEnabled=false;const im=drawAssets[p.sheet];if(im){const f=frameXY(0);pctx.drawImage(im,f.sx,f.sy,SHEET_CELL,SHEET_CELL,112,148,168,168)}pctx.fillStyle='#fff';pctx.textAlign='center';pctx.font='bold 19px monospace';pctx.fillText(p.name,195,338);pctx.font='11px monospace';pctx.fillStyle='#aab5bf';pctx.fillText(`ATQ ${p.attack} · DEF ${p.def}`,195,355);pctx.fillText(`HP ${p.maxHp} · MP ${p.maxMp}`,195,370);
+  syncPaperCanvas();pctx.clearRect(0,0,PAPER_W,PAPER_H);pctx.imageSmoothingEnabled=false;const im=drawAssets[p.sheet];if(im){const f=frameXY(0);pctx.drawImage(im,f.sx,f.sy,SHEET_CELL,SHEET_CELL,112,148,168,168)}pctx.fillStyle='#fff';pctx.textAlign='center';pctx.font='bold 19px monospace';pctx.fillText(p.name,195,338);pctx.font='11px monospace';pctx.fillStyle='#aab5bf';pctx.fillText(`ATQ ${p.attack} · DEF ${p.def}`,195,355);pctx.fillText(`HP ${p.maxHp} · MP ${p.maxMp}`,195,370);
   const ids={head:'slotHead',weapon:'slotWeapon',armor:'slotArmor',charm:'slotCharm',boots:'slotBoots',artifact:'slotArtifact'};Object.keys(ids).forEach(k=>{const el=document.getElementById(ids[k]),it=p.equip[k];el.style.borderColor=it?it.color:'#405166';el.innerHTML=`<div class="label">${SLOT_LABEL[k]}</div>${it?`<div class="slotEquip"><span class="slotIconFrame ${uiRarityClass(it)}"><img src="${ASSET_PATHS[it.asset]}"></span><div class="slotMeta"><div class="slotName" style="color:${it.color}">${it.name}</div><div class="slotPower">Poder +${it.power}</div></div></div>`:`<div class="slotEmpty">Vacío</div>`}`});
   const bag=document.getElementById('bag');bag.innerHTML=p.inventory.length?p.inventory.map(it=>{const equipped=p.equip[it.slot]===it;return `<button class="item${equipped?' equippedItem':''}" data-equip="${it.id}" data-rarity="${it.rarity}"><span class="itemIconFrame ${uiRarityClass(it)}"><img src="${ASSET_PATHS[it.asset]}"></span><div><div class="tier" style="color:${it.color}">${it.rarity}${equipped?' · EQUIPADO':''}</div><div class="iname">${it.name}</div><div class="imeta">${SLOT_LABEL[it.slot]} · Poder +${it.power}</div></div></button>`}).join(''):`<div class="muted">Mochila vacía.</div>`;
   const selected=p.inventory.find(i=>i.id===selectedItemId)||p.inventory[0]||Object.values(p.equip).find(Boolean)||null;renderItemDetail(p,selected);
@@ -3316,7 +3338,7 @@ function startGame(count,input='desktop'){
   ensureWorldReady();
   if(!tileLayers.ground)throw new Error('No se pudo cargar la capa ground del mapa.');
   touchMode=input==='touch';document.body.classList.toggle('touch-mode',touchMode);document.body.classList.remove('overlay-open','dialog-open');resetTouchMove();resizeGame();
-  playerCount=touchMode?1:count;gold=45;kills=0;materials={metal:0,herb:0};consumables={potion:2};scene='world';inside=null;overlay=null;dialogState=null;activeInventoryPlayer=1;Object.values(quests).forEach(q=>{q.active=false;q.done=false;q.claimed=false;if('count' in q)q.count=0});seedDynamicWorld();players=[makePlayer(1,spawnPoint.x,spawnPoint.y,'Bruno','Guardián','bruno')];if(playerCount===2)players.push(makePlayer(2,spawnPoint.x+60,spawnPoint.y,'Nala','Rastreadora','nala'));camera.x=spawnPoint.x;camera.y=spawnPoint.y;clampCamera();UI.start.classList.add('hidden');UI.screen.classList.remove('hidden');document.getElementById('tabP2').style.display=playerCount===2?'inline-block':'none';resizeGame();uiRefreshClock=-999;renderHud();running=true;lastTime=performance.now();setMessage(touchMode?'Modo Android 0.44: portada interactiva integrada.':'Beta 0.44: portada interactiva integrada.');app.focus();if(raf)cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);
+  playerCount=touchMode?1:count;gold=45;kills=0;materials={metal:0,herb:0};consumables={potion:2};scene='world';inside=null;overlay=null;dialogState=null;activeInventoryPlayer=1;Object.values(quests).forEach(q=>{q.active=false;q.done=false;q.claimed=false;if('count' in q)q.count=0});seedDynamicWorld();players=[makePlayer(1,spawnPoint.x,spawnPoint.y,'Bruno','Guardián','bruno')];if(playerCount===2)players.push(makePlayer(2,spawnPoint.x+60,spawnPoint.y,'Nala','Rastreadora','nala'));camera.x=spawnPoint.x;camera.y=spawnPoint.y;clampCamera();UI.start.classList.add('hidden');UI.screen.classList.remove('hidden');document.getElementById('tabP2').style.display=playerCount===2?'inline-block':'none';resizeGame();uiRefreshClock=-999;renderHud();running=true;lastTime=performance.now();setMessage('Explorá el Pueblo Canino y hablá con los vecinos para conseguir tu primera misión.');app.focus();if(raf)cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);
 }
 function loop(ts){if(!running)return;try{const dt=Math.min(.05,(ts-lastTime)/1000||0);lastTime=ts;worldClock+=dt;if(combatFx.shake>0){combatFx.shake*=Math.pow(.035,dt);combatFx.shakeX=rnd(-combatFx.shake,combatFx.shake);combatFx.shakeY=rnd(-combatFx.shake,combatFx.shake);if(combatFx.shake<.18){combatFx.shake=0;combatFx.shakeX=0;combatFx.shakeY=0}}if(dialogState&&dialogState.typing)updateDialogueTyping(dt);drawScene();if(worldClock-uiRefreshClock>=.10){renderHud();uiRefreshClock=worldClock;}if(!overlay&&players.some(p=>p.hp>0)){if(combatFx.hitStop>0)combatFx.hitStop=Math.max(0,combatFx.hitStop-dt);else update(dt)}raf=requestAnimationFrame(loop)}catch(err){running=false;showFatal(err);}}
 function bindTouchControls(){
