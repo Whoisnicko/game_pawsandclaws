@@ -39,7 +39,7 @@ function betaRemoteTarget(p,s){
 }
 onlineWsUrl=room=>ONLINE_COOP_SERVER.replace(/^http/,'ws')+'/ws/'+encodeURIComponent(room)+'?v=50';
 onlineWorldFromNet=(x,y)=>({x,y});
-onlineApplyWelcomeAfterStart=function(){enemies=[];loot=[];hazards=[];respawnQueue=[];onlineCoop.enemies=[];onlineCoop.drops=[];players.forEach(p=>p.onlinePresent=false);betaSnapshot=null;betaInventoryKey='';betaInputClock=0;betaLocalInput={x:0,y:0};betaLastSentInput={x:0,y:0};};
+onlineApplyWelcomeAfterStart=function(){enemies=[];loot=[];hazards=[];respawnQueue=[];onlineCoop.enemies=[];onlineCoop.drops=[];players.forEach(p=>{p.onlinePresent=false;p.renderX=NaN;p.renderY=NaN;});betaSnapshot=null;betaInventoryKey='';betaInputClock=0;betaLocalInput={x:0,y:0};betaLastSentInput={x:0,y:0};};
 function betaSnapshotApply(m){
   if(!onlineCoop.active||m.protocol!==50)return;betaSnapshot=m;onlineCoop.players=m.connected.length;kills=m.kills;
   for(const [role,s] of Object.entries(m.players)){
@@ -114,7 +114,7 @@ updateOnlineCoop=function(dt){
   if(!onlineCoop.active)return;
   const lp=onlineLocalPlayer(),input=betaReadLocalInput();
   for(const p of players){
-    if(!Number.isFinite(p.netTargetX)){p.anim+=dt;continue;}
+    if(!Number.isFinite(p.netTargetX)){p.anim+=dt;if(!Number.isFinite(p.renderX)){p.renderX=p.x;p.renderY=p.y;}continue;}
     const dx=p.netTargetX-p.x,dy=p.netTargetY-p.y,d=Math.hypot(dx,dy);
     if(p===lp){
       // Reconciliation is deliberately softer while moving so the controls never feel tied to RTT.
@@ -125,9 +125,18 @@ updateOnlineCoop=function(dt){
         const rate=base+clamp(d/55,0,moving?3.2:5.5),k=1-Math.exp(-rate*dt);
         movePlayer(p,dx*k,dy*k);
       }
+      // Local rendering stays glued to the predicted position: zero extra visual latency.
+      p.renderX=p.x;p.renderY=p.y;
     }else{
       if(d>.7){p.dirX=dx/d;p.dirY=dy/d;}
       const k=1-Math.exp(-14*dt);p.x+=dx*k;p.y+=dy*k;
+      if(!Number.isFinite(p.renderX)){p.renderX=p.x;p.renderY=p.y;}
+      const rdx=p.netTargetX-p.renderX,rdy=p.netTargetY-p.renderY,rd=Math.hypot(rdx,rdy);
+      if(rd>190){p.renderX=p.netTargetX;p.renderY=p.netTargetY;}
+      else{
+        const rk=1-Math.exp(-(rd>55?22:17)*dt);
+        p.renderX+=rdx*rk;p.renderY+=rdy*rk;
+      }
     }
     p.anim+=dt;
   }
