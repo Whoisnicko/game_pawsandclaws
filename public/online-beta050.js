@@ -110,7 +110,7 @@ updateOnlineCoop=function(dt){
     if(p===lp){
       // Reconciliation is deliberately softer while moving so the controls never feel tied to RTT.
       if(d>BETA_NET_PREDICTION.hardSnap){p.x=p.netTargetX;p.y=p.netTargetY;}
-      else if(d>.35){const rate=Math.hypot(input.x,input.y)>.01?BETA_NET_PREDICTION.movingCorrection:BETA_NET_PREDICTION.idleCorrection,k=1-Math.exp(-rate*dt);p.x+=dx*k;p.y+=dy*k;}
+      else if(d>.35){const rate=Math.hypot(input.x,input.y)>.01?BETA_NET_PREDICTION.movingCorrection:BETA_NET_PREDICTION.idleCorrection,k=1-Math.exp(-rate*dt);movePlayer(p,dx*k,dy*k);}
     }else{
       if(d>.7){p.dirX=dx/d;p.dirY=dy/d;}
       const k=1-Math.exp(-14*dt);p.x+=dx*k;p.y+=dy*k;
