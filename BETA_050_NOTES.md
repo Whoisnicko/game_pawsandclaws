@@ -120,6 +120,12 @@ Cambios principales:
 
 Pendiente de QA físico: medir sensación con ~130–140 ms de RTT, observar rubber-banding junto a paredes y comparar PC/Android en redes distintas.
 
+Segunda pasada de latencia:
+- el cliente envía inmediatamente un cambio de dirección o una parada, en vez de esperar hasta 50 ms al siguiente envío periódico;
+- mientras hay movimiento mantiene actualizaciones a 20 Hz, y en reposo baja el heartbeat a ~6,7 Hz;
+- el compañero remoto recibe una pequeña extrapolación basada en dirección, velocidad y RTT/2 para reducir la sensación de ir “atrás”;
+- la fuerza de reconciliación local ahora aumenta con el tamaño del error y usa una zona muerta mayor para reducir microtirones.
+
 ## Límites conocidos y QA pendiente
 
 - No se desplegó ni se probó esta beta en Cloudflare público. Falta PC + Android físico en redes distintas.
