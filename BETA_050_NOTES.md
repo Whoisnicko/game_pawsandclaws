@@ -104,6 +104,22 @@ npm run test:browser
 
 Los resultados y capturas se generan en `qa-results/`. `CHROMIUM_EXECUTABLE` permite usar otro Chromium instalado; `QA_OUTPUT` permite cambiar la carpeta de salida.
 
+## Latencia / predicción local
+
+Se agregó predicción local del movimiento del personaje controlado y dash predictivo en el cliente. El Worker sigue siendo autoritativo: cada snapshot conserva la posición oficial y el cliente corrige deriva de forma suave, con hard-snap únicamente ante divergencias grandes. La reconciliación respeta las colisiones locales y proyecta levemente el estado del servidor usando RTT/2 + medio tick para evitar arrastrar al jugador hacia una posición vieja mientras se mueve.
+
+Cambios principales:
+
+- movimiento local inmediato cada frame en PC y touch;
+- input de red continúa a 20 Hz;
+- snapshots autoritativos continúan aproximadamente a 10 Hz;
+- reconciliación suave mientras se mueve y más rápida al quedar quieto;
+- dash mostrado inmediatamente y corregido por el siguiente snapshot;
+- otros jugadores siguen interpolados, no predichos;
+- no se cambió daño, loot, quests, cofres, boss ni autoridad del servidor.
+
+Pendiente de QA físico: medir sensación con ~130–140 ms de RTT, observar rubber-banding junto a paredes y comparar PC/Android en redes distintas.
+
 ## Límites conocidos y QA pendiente
 
 - No se desplegó ni se probó esta beta en Cloudflare público. Falta PC + Android físico en redes distintas.
