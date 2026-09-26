@@ -10,6 +10,7 @@ export class Simulation {
   constructor(saved=null){
     this.data=saved||{version:PROTOCOL,players:{},enemies:world.enemies.map((e,i)=>({...clone(e),id:'enemy-'+i,alive:true,respawnAt:0})),drops:[],chests:world.chests.map((c,i)=>({...clone(c),id:'chest-'+i})),quests:{cats:{active:false,done:false,claimed:false},metal:{active:false,done:false,claimed:false,count:0},cave:{active:false,done:false,claimed:false}},kills:0,victory:false,seq:0,serial:0};
     this.inputs={};this.events=[];this.connected=new Set();
+    for(const p of Object.values(this.data.players))for(const slot of Object.keys(p.equip))if(p.equip[slot])p.equip[slot]=p.inventory.find(i=>i.id===p.equip[slot].id)||p.equip[slot];
   }
   join(role){
     if(!this.data.players[role]){const p=makePlayer(role==='bruno'?1:2,world.spawn.x+(role==='nala'?60:0),world.spawn.y,role==='bruno'?'Bruno':'Nala',role==='bruno'?'Guardián':'Rastreadora',role);Object.assign(p,{netRole:role,scene:'world',mp:p.maxMp,gold:45,metal:0,herb:0,potions:2,respawnAt:0,claims:{}});this.data.players[role]=p;}
@@ -99,7 +100,7 @@ export class Simulation {
       p.stam=Math.min(100,p.stam+36*dt);p.mp=Math.min(p.maxMp,p.mp+10*dt);
       if(p.buffs.inn>0){p.buffs.inn=Math.max(0,p.buffs.inn-dt);if(!p.buffs.inn)this.refresh(p);}
       const input=this.inputs[role],moving=input&&now-input.at<350&&(input.x||input.y);
-      if(moving){p.dirX=input.x;p.dirY=input.y;this.move(p,input.x*p.speed*dt,input.y*p.speed*dt);}
+      if(moving){const norm=Math.hypot(input.x,input.y)||1;p.dirX=input.x/norm;p.dirY=input.y/norm;this.move(p,input.x*p.speed*dt,input.y*p.speed*dt);}
       p.state=p.attackCd>0?'attack':p.dashCd>0?'dash':p.skillCd>4.6?'skill':moving?'run':'idle';p.anim+=dt;
       for(let i=this.data.drops.length-1;i>=0;i--){const d=this.data.drops[i];if(!same(p,d)||distance(p,d)>=52)continue;if(d.kind==='equipment')this.item(p,d.item);else if(d.kind==='coins')p.gold+=d.amount;else p[d.kind]+=d.amount;this.data.drops.splice(i,1);this.quests();}
     }

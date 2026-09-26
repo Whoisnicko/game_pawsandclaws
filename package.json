@@ -1,12 +1,16 @@
 {
   "name": "game-pawsandclaws",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.50.0",
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "wrangler deploy"
+    "deploy": "wrangler deploy",
+    "test": "node --test tests/simulation.test.mjs",
+    "test:browser": "node tests/browser-integration.cjs",
+    "check": "node --check public/game.js && node --check public/online-beta050.js && node --check public/bootstrap.js && node --check backend/worker.mjs && node --check backend/simulation.mjs"
   },
   "devDependencies": {
-    "wrangler": "^4.34.0"
+    "playwright": "1.62.1",
+    "wrangler": "4.34.0"
   }
 }

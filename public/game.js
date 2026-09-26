@@ -1544,6 +1544,14 @@ function renderInventory(){
   const selected=p.inventory.find(i=>i.id===selectedItemId)||p.inventory[0]||Object.values(p.equip).find(Boolean)||null;renderItemDetail(p,selected);
   bag.querySelectorAll('[data-equip]').forEach(b=>b.onclick=()=>{const it=p.inventory.find(i=>i.id===b.dataset.equip);if(it){selectedItemId=it.id;renderItemDetail(p,it);if(onlineCoop.active){onlineSend({type:'equip',id:it.id});}else{p.equip[it.slot]=it;recalc(p);renderInventory()}}});
 }
+function updateJoystickFromPointer(e){
+  const r=UI.joystick.getBoundingClientRect(),radius=Math.max(1,Math.min(r.width,r.height)*.32);
+  const dx=e.clientX-r.left-r.width/2,dy=e.clientY-r.top-r.height/2,length=Math.hypot(dx,dy);
+  const magnitude=Math.min(1,length/radius),deadZone=.10;
+  touchMove.x=length&&magnitude>deadZone?dx/length*magnitude:0;
+  touchMove.y=length&&magnitude>deadZone?dy/length*magnitude:0;
+  if(UI.joystickKnob)UI.joystickKnob.style.transform=`translate(${touchMove.x*radius}px,${touchMove.y*radius}px)`;
+}
 function resetTouchMove(){touchMove.x=0;touchMove.y=0;touchMove.pointerId=null;if(UI.joystickKnob)UI.joystickKnob.style.transform='translate(0px,0px)';}
 function syncUiTabs(){const map={inventory:'btnInv',quest:'btnQuest',skills:'btnSkills'};['btnInv','btnQuest','btnSkills'].forEach(id=>{const el=document.getElementById(id);if(el)el.classList.remove('active')});if(map[overlay]){const el=document.getElementById(map[overlay]);if(el)el.classList.add('active')}}
 function openInventory(id){AudioManager.play('uiOpen');resetTouchMove();activeInventoryPlayer=id;overlay='inventory';document.body.classList.add('overlay-open');document.body.classList.remove('dialog-open');UI.inventory.style.display='flex';renderInventory();syncUiTabs()}
@@ -1561,7 +1569,7 @@ function startGame(count,input='desktop'){
   ensureWorldReady();
   if(!tileLayers.ground)throw new Error('No se pudo cargar la capa ground del mapa.');
   touchMode=input==='touch';document.body.classList.toggle('touch-mode',touchMode);document.body.classList.remove('overlay-open','dialog-open');resetTouchMove();resizeGame();
-  playerCount=onlineCoop.active?2:(touchMode?1:count);gold=45;kills=0;materials={metal:0,herb:0};consumables={potion:2};scene='world';inside=null;overlay=null;dialogState=null;activeInventoryPlayer=1;Object.values(quests).forEach(q=>{q.active=false;q.done=false;q.claimed=false;if('count' in q)q.count=0});seedDynamicWorld();players=[makePlayer(1,spawnPoint.x,spawnPoint.y,'Bruno','Guardián','bruno')];if(playerCount===2)players.push(makePlayer(2,spawnPoint.x+60,spawnPoint.y,'Nala','Rastreadora','nala'));if(onlineCoop.active)onlineApplyWelcomeAfterStart();camera.x=(onlineCoop.active&&onlineLocalPlayer()?onlineLocalPlayer().x:spawnPoint.x);camera.y=(onlineCoop.active&&onlineLocalPlayer()?onlineLocalPlayer().y:spawnPoint.y);clampCamera();UI.start.classList.add('hidden');UI.screen.classList.remove('hidden');document.getElementById('tabP2').style.display=playerCount===2?'inline-block':'none';resizeGame();uiRefreshClock=-999;renderHud();running=true;lastTime=performance.now();setMessage(touchMode?'Beta 0.50 · Android':'Beta 0.50 · Paws & Claws');app.focus();if(raf)cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);
+  playerCount=onlineCoop.active?2:(touchMode?1:count);gold=45;kills=0;materials={metal:0,herb:0};consumables={potion:2};scene='world';inside=null;overlay=null;dialogState=null;activeInventoryPlayer=1;Object.values(quests).forEach(q=>{q.active=false;q.done=false;q.claimed=false;if('count' in q)q.count=0});seedDynamicWorld();players=[makePlayer(1,spawnPoint.x,spawnPoint.y,'Bruno','Guardián','bruno')];if(playerCount===2)players.push(makePlayer(2,spawnPoint.x+60,spawnPoint.y,'Nala','Rastreadora','nala'));if(onlineCoop.active)onlineApplyWelcomeAfterStart();camera.x=(onlineCoop.active&&onlineLocalPlayer()?onlineLocalPlayer().x:spawnPoint.x);camera.y=(onlineCoop.active&&onlineLocalPlayer()?onlineLocalPlayer().y:spawnPoint.y);clampCamera();UI.start.classList.add('hidden');UI.screen.classList.remove('hidden');document.getElementById('tabP1').style.display='inline-block';document.getElementById('tabP2').style.display=playerCount===2?'inline-block':'none';resizeGame();uiRefreshClock=-999;renderHud();running=true;lastTime=performance.now();setMessage(touchMode?'Beta 0.50 · Android':'Beta 0.50 · Paws & Claws');app.focus();if(raf)cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);
 }
 function loop(ts){if(!running)return;try{const dt=Math.min(.05,(ts-lastTime)/1000||0);lastTime=ts;worldClock+=dt;if(combatFx.shake>0){combatFx.shake*=Math.pow(.035,dt);combatFx.shakeX=rnd(-combatFx.shake,combatFx.shake);combatFx.shakeY=rnd(-combatFx.shake,combatFx.shake);if(combatFx.shake<.18){combatFx.shake=0;combatFx.shakeX=0;combatFx.shakeY=0}}if(dialogState&&dialogState.typing)updateDialogueTyping(dt);drawScene();if(worldClock-uiRefreshClock>=.10){renderHud();uiRefreshClock=worldClock;}if(onlineCoop.active||(!overlay&&players.some(p=>p.hp>0))){if(combatFx.hitStop>0)combatFx.hitStop=Math.max(0,combatFx.hitStop-dt);else update(dt)}raf=requestAnimationFrame(loop)}catch(err){running=false;showFatal(err);}}
 function bindTouchControls(){
@@ -1688,6 +1696,12 @@ function bindGameplayKeyboard(){
     if(movementCodes.has(e.code)||actionCodes.has(e.code)){
       keys[e.code]=true;
       if(movementCodes.has(e.code)||['KeyF','KeyG','KeyH','KeyJ','KeyK','KeyL'].includes(e.code))e.preventDefault();
+    }
+    const actionMap={KeyF:'attack',KeyG:'dash',KeyH:'skill',KeyL:'attack',KeyK:'dash',KeyJ:'skill'};
+    if(actionMap[e.code]){
+      keys[e.code]=false;
+      if(!e.repeat&&!overlay){const secondary=['KeyL','KeyK','KeyJ'].includes(e.code);const p=onlineCoop.active?(secondary?null:onlineLocalPlayer()):players[secondary?1:0];if(p){if(actionMap[e.code]==='attack')attack(p);else if(actionMap[e.code]==='dash')dash(p);else useSkill(p);}}
+      e.preventDefault();return;
     }
     if(e.code==='KeyR'&&!e.repeat){
       const p=onlineCoop.active?onlineLocalPlayer():(players[0]||null);

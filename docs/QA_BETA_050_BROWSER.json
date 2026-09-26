@@ -1,0 +1,21 @@
+{
+  "checks": [
+    "Menu and SOLO start without fatal JavaScript errors",
+    "Create room through UI and connect Bruno to actual Worker",
+    "Second mobile client joins as Nala",
+    "WASD movement reaches both clients",
+    "Android emulation joystick moves Nala",
+    "PC attack and mobile skill synchronize HP and MP",
+    "ATQ / DSP / MAG and F / G / H send authoritative actions",
+    "E / ACT opens one shared chest with one equipment reward",
+    "Simultaneous drop pickup awards gold once",
+    "Inventory equipment and skill points belong to each player",
+    "R consumes one potion and restores HP",
+    "NPC dialogue activates shared quest; both claim once",
+    "Both clients enter cave through E / ACT",
+    "Single boss state; victory on both; continue exploring",
+    "Dead player respawns without input",
+    "No fatal JavaScript errors across entire run"
+  ],
+  "errors": []
+}
