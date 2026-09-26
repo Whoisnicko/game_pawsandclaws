@@ -1,7 +1,7 @@
 /* Beta 0.50 adapter. SOLO retains the stable 0.47.2 implementation. */
 const betaOriginal={updatePlayer,updateOnlineCoop,onlineHandleMessage,onlineApplyWelcomeAfterStart,interact,dash,usePotion,activeNpcs,renderHud,renderInventory,openInventory,openShop,openInnShop,acceptQuest,claimQuest,renderSkills,bindMenuAndUi,drawScene,updateWorldNpcs};
 let betaSnapshot=null,betaInventoryKey='',betaInputClock=0;
-let betaLocalInput={x:0,y:0};
+let betaLocalInput={x:0,y:0},betaLastSentInput={x:0,y:0};
 const BETA_NET_PREDICTION=Object.freeze({
   hardSnap:170,
   movingCorrection:4.2,
@@ -21,16 +21,25 @@ function betaReadLocalInput(){
   betaLocalInput.x=x;betaLocalInput.y=y;
   return betaLocalInput;
 }
+function betaNetLead(max=BETA_NET_PREDICTION.maxLead){
+  const oneWay=clamp((onlineCoop.ping??140)/2000,0,.12);
+  return clamp(oneWay+BETA_NET_PREDICTION.tickLead,0,max);
+}
 function betaReconcileTarget(p,s){
   const moving=Math.hypot(betaLocalInput.x,betaLocalInput.y)>.01;
   if(!moving)return {x:s.x,y:s.y};
-  const oneWay=clamp((onlineCoop.ping??140)/2000,0,.11);
-  const lead=clamp(oneWay+BETA_NET_PREDICTION.tickLead,0,BETA_NET_PREDICTION.maxLead);
+  const lead=betaNetLead();
   return {x:s.x+betaLocalInput.x*p.speed*lead,y:s.y+betaLocalInput.y*p.speed*lead};
+}
+function betaRemoteTarget(p,s){
+  const running=s.state==='run'&&Number.isFinite(s.dirX)&&Number.isFinite(s.dirY);
+  if(!running)return {x:s.x,y:s.y};
+  const lead=betaNetLead(.18);
+  return {x:s.x+s.dirX*p.speed*lead,y:s.y+s.dirY*p.speed*lead};
 }
 onlineWsUrl=room=>ONLINE_COOP_SERVER.replace(/^http/,'ws')+'/ws/'+encodeURIComponent(room)+'?v=50';
 onlineWorldFromNet=(x,y)=>({x,y});
-onlineApplyWelcomeAfterStart=function(){enemies=[];loot=[];hazards=[];respawnQueue=[];onlineCoop.enemies=[];onlineCoop.drops=[];players.forEach(p=>p.onlinePresent=false);betaSnapshot=null;betaInventoryKey='';};
+onlineApplyWelcomeAfterStart=function(){enemies=[];loot=[];hazards=[];respawnQueue=[];onlineCoop.enemies=[];onlineCoop.drops=[];players.forEach(p=>p.onlinePresent=false);betaSnapshot=null;betaInventoryKey='';betaInputClock=0;betaLocalInput={x:0,y:0};betaLastSentInput={x:0,y:0};};
 function betaSnapshotApply(m){
   if(!onlineCoop.active||m.protocol!==50)return;betaSnapshot=m;onlineCoop.players=m.connected.length;kills=m.kills;
   for(const [role,s] of Object.entries(m.players)){
@@ -40,7 +49,7 @@ function betaSnapshotApply(m){
       p.x=oldX;p.y=oldY;p.netServerX=s.x;p.netServerY=s.y;p.netTargetX=target.x;p.netTargetY=target.y;
       if(err>BETA_NET_PREDICTION.hardSnap){p.x=s.x;p.y=s.y;p.netTargetX=s.x;p.netTargetY=s.y;}
     }else{
-      p.netTargetX=s.x;p.netTargetY=s.y;
+      const target=betaRemoteTarget(p,s);p.netTargetX=target.x;p.netTargetY=target.y;
       if(oldScene===s.scene&&Math.hypot(oldX-s.x,oldY-s.y)<220){p.x=oldX;p.y=oldY;}
     }
     // Restore references so native equipment highlighting and comparison remain correct.
@@ -110,16 +119,25 @@ updateOnlineCoop=function(dt){
     if(p===lp){
       // Reconciliation is deliberately softer while moving so the controls never feel tied to RTT.
       if(d>BETA_NET_PREDICTION.hardSnap){p.x=p.netTargetX;p.y=p.netTargetY;}
-      else if(d>.35){const rate=Math.hypot(input.x,input.y)>.01?BETA_NET_PREDICTION.movingCorrection:BETA_NET_PREDICTION.idleCorrection,k=1-Math.exp(-rate*dt);movePlayer(p,dx*k,dy*k);}
+      else if(d>.9){
+        const moving=Math.hypot(input.x,input.y)>.01;
+        const base=moving?BETA_NET_PREDICTION.movingCorrection:BETA_NET_PREDICTION.idleCorrection;
+        const rate=base+clamp(d/55,0,moving?3.2:5.5),k=1-Math.exp(-rate*dt);
+        movePlayer(p,dx*k,dy*k);
+      }
     }else{
       if(d>.7){p.dirX=dx/d;p.dirY=dy/d;}
       const k=1-Math.exp(-14*dt);p.x+=dx*k;p.y+=dy*k;
     }
     p.anim+=dt;
   }
-  betaInputClock+=dt;if(betaInputClock>=.05){
+  betaInputClock+=dt;
+  const changed=Math.abs(input.x-betaLastSentInput.x)>.02||Math.abs(input.y-betaLastSentInput.y)>.02;
+  const moving=Math.hypot(input.x,input.y)>.01,sendEvery=moving?.05:.15;
+  if(changed||betaInputClock>=sendEvery){
     betaInputClock=0;
-    onlineSend({type:'input',x:+input.x.toFixed(4),y:+input.y.toFixed(4)});
+    const sx=+input.x.toFixed(4),sy=+input.y.toFixed(4);
+    if(onlineSend({type:'input',x:sx,y:sy})){betaLastSentInput.x=sx;betaLastSentInput.y=sy;}
   }
   onlineCoop.pingClock+=dt;if(onlineCoop.pingClock>=2){onlineCoop.pingClock=0;onlineSend({type:'ping',t:Date.now()});}
 };
