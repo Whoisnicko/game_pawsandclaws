@@ -1328,7 +1328,54 @@ function drawChest(ch){
   }else drawAssetBottom(key,ch.x,ch.y,baseW,ch.open?.82:1);
   if(!ch.open&&pulse>.78){ctx.save();ctx.globalAlpha=.55;ctx.fillStyle=CHEST_LID_HINT[key]||'#fff0b6';ctx.fillRect(Math.round(s.x-1),Math.round(s.y-42),2,7);ctx.fillRect(Math.round(s.x-4),Math.round(s.y-39),8,2);ctx.restore();}
 }
-function drawPlayer(p){const s=worldToScreen(p.x,p.y);drawSheetFrame(p.sheet,playerFrame(p),s.x,s.y+10,CHARACTER_RENDER_SIZE,p.dirX<0,p.flash>0?.74:1);ctx.fillStyle='rgba(0,0,0,.60)';ctx.fillRect(Math.round(s.x-27),Math.round(s.y-64),54,6);ctx.fillStyle=p.id===1?'#59b7e5':'#e7789d';ctx.fillRect(Math.round(s.x-27),Math.round(s.y-64),Math.round(54*p.hp/p.maxHp),6);drawOutlinedText(`${p.name} Lv.${p.level}`,s.x,s.y-73,'#fff',10)}
+function playerRenderBase(p){
+  return {
+    x:Number.isFinite(p.renderX)?p.renderX:p.x,
+    y:Number.isFinite(p.renderY)?p.renderY:p.y
+  };
+}
+function playerRenderPosition(p){
+  const base=playerRenderBase(p);let x=base.x,y=base.y;
+  const minGap=34;
+  for(const other of players){
+    if(other===p||other.scene!==p.scene||other.hp<=0)continue;
+    if(onlineCoop.active&&other.onlinePresent===false)continue;
+    const ob=playerRenderBase(other),dx=x-ob.x,dy=y-ob.y,d=Math.hypot(dx,dy);
+    if(d>=minGap)continue;
+    let ux,uy;
+    if(d<.001){ux=(p.id||0)<(other.id||0)?-1:1;uy=0;}
+    else{ux=dx/d;uy=dy/d;}
+    const push=(minGap-d)*.5;x+=ux*push;y+=uy*push;
+  }
+  return {x,y};
+}
+function depthStableId(entity,kind){
+  return String(entity?.onlineId??entity?.id??entity?.name??entity?.asset??kind);
+}
+function depthY(entity,kind){
+  let y=Number(entity?.y)||0;
+  if(kind==='player')y=playerRenderPosition(entity).y;
+  const offset=kind==='player'||kind==='enemy'?10:kind==='chest'?6:kind==='loot'||kind==='drop'?4:0;
+  return Math.round((y+offset)/4)*4;
+}
+function pushDepth(queue,entity,kind,draw){
+  queue.push({depth:depthY(entity,kind),stable:kind+':'+depthStableId(entity,kind),order:queue.length,draw});
+}
+function drawDepthQueue(queue){
+  queue.sort((a,b)=>a.depth-b.depth||a.stable.localeCompare(b.stable)||a.order-b.order).forEach(o=>o.draw());
+}
+function drawPlayerBody(p){
+  const rp=playerRenderPosition(p),s=worldToScreen(rp.x,rp.y);
+  drawSheetFrame(p.sheet,playerFrame(p),s.x,s.y+10,CHARACTER_RENDER_SIZE,p.dirX<0,p.flash>0?.74:1);
+}
+function drawPlayerOverlay(p){
+  const rp=playerRenderPosition(p),s=worldToScreen(rp.x,rp.y);
+  const hpRatio=clamp(p.hp/Math.max(1,p.maxHp),0,1);
+  ctx.fillStyle='rgba(0,0,0,.60)';ctx.fillRect(Math.round(s.x-27),Math.round(s.y-64),54,6);
+  ctx.fillStyle=p.id===1?'#59b7e5':'#e7789d';ctx.fillRect(Math.round(s.x-27),Math.round(s.y-64),Math.round(54*hpRatio),6);
+  drawOutlinedText(`${p.name} Lv.${p.level}`,s.x,s.y-73,'#fff',10);
+}
+function drawPlayer(p){drawPlayerBody(p);drawPlayerOverlay(p)}
 function drawEnemy(e){const s=worldToScreen(e.x,e.y),size=e.type==='king'?118:e.type==='elite'?105:94;drawSheetFrame(e.sheet,enemyFrame(e),s.x,s.y+10,size,players[0]?players[0].x<e.x:false,e.flash>0?.74:1);const barY=s.y-(e.type==='king'?84:66),barW=e.type==='king'?82:58;ctx.fillStyle='rgba(0,0,0,.58)';ctx.fillRect(Math.round(s.x-barW/2),Math.round(barY),barW,6);ctx.fillStyle=e.type==='king'?'#efad54':'#d96b68';ctx.fillRect(Math.round(s.x-barW/2),Math.round(barY),Math.round(barW*e.hp/e.maxHp),6);if(e.state==='alert')drawOutlinedText('!',s.x,barY-8,'#ffe06d',20)}
 function drawLoot(l){const s=worldToScreen(l.x,l.y),bob=Math.sin((l.t||0)*5)*4,im=drawAssets[l.item.asset];if(!im)return;ctx.strokeStyle=l.item.color;ctx.lineWidth=l.item.tier>=2?3:2;ctx.strokeRect(Math.round(s.x-23),Math.round(s.y-23+bob),46,46);ctx.drawImage(im,Math.round(s.x-20),Math.round(s.y-20+bob),40,40)}
 function drawHazard(h){
@@ -1427,27 +1474,34 @@ function drawScene(){
   if(renderScale!==1){const cx=viewport.x+viewport.w/2,cy=viewport.y+viewport.h/2;ctx.translate(cx,cy);ctx.scale(renderScale,renderScale);ctx.translate(-cx,-cy);}
   if(scene==='world'){
     drawTileLayer(tileLayers.ground);drawTileLayer(tileLayers.paths);drawTileLayer(tileLayers.water);drawTerrainIdentity();
-    const queue=[];
-    for(const o of mapDecor)if(!isNearFountainVisual(o)&&isVisibleWorld(o.x,o.y,300))queue.push({y:o.y,draw:()=>drawMapDecor(o)});
-    for(const o of mapObjects.filter(o=>o.type==='building'||o.type==='cave'))if(isVisibleWorld(o.x,o.y,420))queue.push({y:o.y,draw:()=>o.type==='building'?drawBuilding(o):drawCaveEntrance(o)});
-    for(const p of villageProps)if(isVisibleWorld(p.x,p.y,140))queue.push({y:p.y,draw:()=>drawVillageProp(p)});
-    if(villageCenterpiece&&isVisibleWorld(villageCenterpiece.x,villageCenterpiece.y,220))queue.push({y:villageCenterpiece.y,draw:()=>drawVillageCenterpiece()});
-    for(const n of activeNpcs())if(isVisibleWorld(n.x,n.y,160))queue.push({y:n.y,draw:()=>drawWorldNpc(n)});
-    for(const ch of chests.filter(c=>c.scene==='world'))if(isVisibleWorld(ch.x,ch.y,120))queue.push({y:ch.y,draw:()=>drawChest(ch)});
-    for(const l of loot.filter(l=>l.scene==='world'))if(isVisibleWorld(l.x,l.y,120))queue.push({y:l.y,draw:()=>drawLoot(l)});
-    for(const e of enemies.filter(e=>e.scene==='world'&&e.hp>0))if(isVisibleWorld(e.x,e.y,180))queue.push({y:e.y,draw:()=>drawEnemy(e)});
-    if(onlineCoop.active){for(const d of onlineCoop.drops)if(d.scene===scene&&isVisibleWorld(d.x,d.y,120))queue.push({y:d.y,draw:()=>drawOnlineDrop(d)});}
-    for(const p of players.filter(p=>!onlineCoop.active||(p.onlinePresent!==false&&p.scene===scene)))queue.push({y:p.y,draw:()=>drawPlayer(p)});
+    const queue=[],scenePlayers=players.filter(p=>!onlineCoop.active||(p.onlinePresent!==false&&p.scene===scene));
+    for(const o of mapDecor)if(!isNearFountainVisual(o)&&isVisibleWorld(o.x,o.y,300))pushDepth(queue,o,'decor',()=>drawMapDecor(o));
+    for(const o of mapObjects.filter(o=>o.type==='building'||o.type==='cave'))if(isVisibleWorld(o.x,o.y,420))pushDepth(queue,o,o.type,()=>o.type==='building'?drawBuilding(o):drawCaveEntrance(o));
+    for(const p of villageProps)if(isVisibleWorld(p.x,p.y,140))pushDepth(queue,p,'prop',()=>drawVillageProp(p));
+    if(villageCenterpiece&&isVisibleWorld(villageCenterpiece.x,villageCenterpiece.y,220))pushDepth(queue,villageCenterpiece,'prop',()=>drawVillageCenterpiece());
+    for(const n of activeNpcs())if(isVisibleWorld(n.x,n.y,160))pushDepth(queue,n,'npc',()=>drawWorldNpc(n));
+    for(const ch of chests.filter(c=>c.scene==='world'))if(isVisibleWorld(ch.x,ch.y,120))pushDepth(queue,ch,'chest',()=>drawChest(ch));
+    for(const l of loot.filter(l=>l.scene==='world'))if(isVisibleWorld(l.x,l.y,120))pushDepth(queue,l,'loot',()=>drawLoot(l));
+    for(const e of enemies.filter(e=>e.scene==='world'&&e.hp>0))if(isVisibleWorld(e.x,e.y,180))pushDepth(queue,e,'enemy',()=>drawEnemy(e));
+    if(onlineCoop.active){for(const d of onlineCoop.drops)if(d.scene===scene&&isVisibleWorld(d.x,d.y,120))pushDepth(queue,d,'drop',()=>drawOnlineDrop(d));}
+    for(const p of scenePlayers)pushDepth(queue,p,'player',()=>drawPlayerBody(p));
     hazards.filter(h=>h.scene==='world'&&isVisibleWorld(h.x,h.y,180)).forEach(drawHazard);
-    queue.sort((a,b)=>a.y-b.y).forEach(x=>x.draw());if(caveTrigger){const cave=mapObjects.find(o=>o.type==='cave');if(cave&&isVisibleWorld(cave.x,cave.y,300)){const s=worldToScreen(caveTrigger.x,caveTrigger.y);if(players[0]&&nearWorldTrigger(players[0],caveTrigger,20)&&!overlay){ctx.fillStyle='rgba(8,12,16,.82)';ctx.fillRect(Math.round(s.x-54),Math.round(s.y-82),108,22);drawOutlinedText('E · Entrar',s.x,s.y-66,'#fff',10);}}}drawEffects();
+    drawDepthQueue(queue);
+    for(const p of scenePlayers)drawPlayerOverlay(p);
+    if(caveTrigger){const cave=mapObjects.find(o=>o.type==='cave');if(cave&&isVisibleWorld(cave.x,cave.y,300)){const s=worldToScreen(caveTrigger.x,caveTrigger.y);if(players[0]&&nearWorldTrigger(players[0],caveTrigger,20)&&!overlay){ctx.fillStyle='rgba(8,12,16,.82)';ctx.fillRect(Math.round(s.x-54),Math.round(s.y-82),108,22);drawOutlinedText('E · Entrar',s.x,s.y-66,'#fff',10);}}}drawEffects();
   } else if(scene==='dungeon'){
-    drawDungeonGround();drawDungeonBackground();hazards.filter(h=>h.scene==='dungeon'&&isVisibleWorld(h.x,h.y,180)).forEach(drawHazard);const q=[];
-    for(const r of DUNGEON_LAYOUT.rocks)if(isVisibleWorld(r.x,r.y,150))q.push({y:r.y,draw:()=>drawDungeonProp({kind:'rock',...r})});
-    for(const c of DUNGEON_LAYOUT.crystals)if(isVisibleWorld(c.x,c.y,120))q.push({y:c.y,draw:()=>drawDungeonProp({kind:'crystal',...c})});
-    chests.filter(c=>c.scene==='dungeon').forEach(ch=>q.push({y:ch.y,draw:()=>drawChest(ch)}));loot.filter(l=>l.scene==='dungeon').forEach(l=>q.push({y:l.y,draw:()=>drawLoot(l)}));enemies.filter(e=>e.scene==='dungeon'&&e.hp>0).forEach(e=>q.push({y:e.y,draw:()=>drawEnemy(e)}));players.filter(p=>!onlineCoop.active||(p.onlinePresent&&p.scene===scene)).forEach(p=>q.push({y:p.y,draw:()=>drawPlayer(p)}));if(onlineCoop.active)onlineCoop.drops.filter(d=>d.scene===scene).forEach(d=>q.push({y:d.y,draw:()=>drawOnlineDrop(d)}));q.sort((a,b)=>a.y-b.y).forEach(o=>o.draw());
+    drawDungeonGround();drawDungeonBackground();hazards.filter(h=>h.scene==='dungeon'&&isVisibleWorld(h.x,h.y,180)).forEach(drawHazard);const q=[],scenePlayers=players.filter(p=>!onlineCoop.active||(p.onlinePresent&&p.scene===scene));
+    for(const r of DUNGEON_LAYOUT.rocks)if(isVisibleWorld(r.x,r.y,150))pushDepth(q,r,'prop',()=>drawDungeonProp({kind:'rock',...r}));
+    for(const c of DUNGEON_LAYOUT.crystals)if(isVisibleWorld(c.x,c.y,120))pushDepth(q,c,'prop',()=>drawDungeonProp({kind:'crystal',...c}));
+    chests.filter(c=>c.scene==='dungeon').forEach(ch=>pushDepth(q,ch,'chest',()=>drawChest(ch)));
+    loot.filter(l=>l.scene==='dungeon').forEach(l=>pushDepth(q,l,'loot',()=>drawLoot(l)));
+    enemies.filter(e=>e.scene==='dungeon'&&e.hp>0).forEach(e=>pushDepth(q,e,'enemy',()=>drawEnemy(e)));
+    for(const p of scenePlayers)pushDepth(q,p,'player',()=>drawPlayerBody(p));
+    if(onlineCoop.active)onlineCoop.drops.filter(d=>d.scene===scene).forEach(d=>pushDepth(q,d,'drop',()=>drawOnlineDrop(d)));
+    drawDepthQueue(q);for(const p of scenePlayers)drawPlayerOverlay(p);
     const ex=worldToScreen(190,930);drawOutlinedText('Salida',ex.x,ex.y-50,'#e8dfc9',9);drawEffects();
   } else {
-    drawInteriorGround();const q=[];activeNpcs().forEach(n=>q.push({y:n.y,draw:()=>drawWorldNpc(n)}));players.filter(p=>!onlineCoop.active||(p.onlinePresent&&p.scene===scene)).forEach(p=>q.push({y:p.y,draw:()=>drawPlayer(p)}));if(onlineCoop.active)onlineCoop.drops.filter(d=>d.scene===scene).forEach(d=>q.push({y:d.y,draw:()=>drawOnlineDrop(d)}));q.sort((a,b)=>a.y-b.y).forEach(o=>o.draw());drawEffects();
+    drawInteriorGround();const q=[],scenePlayers=players.filter(p=>!onlineCoop.active||(p.onlinePresent&&p.scene===scene));activeNpcs().forEach(n=>pushDepth(q,n,'npc',()=>drawWorldNpc(n)));for(const p of scenePlayers)pushDepth(q,p,'player',()=>drawPlayerBody(p));if(onlineCoop.active)onlineCoop.drops.filter(d=>d.scene===scene).forEach(d=>pushDepth(q,d,'drop',()=>drawOnlineDrop(d)));drawDepthQueue(q);for(const p of scenePlayers)drawPlayerOverlay(p);drawEffects();
   }
   ctx.restore();
   drawPostLighting();
