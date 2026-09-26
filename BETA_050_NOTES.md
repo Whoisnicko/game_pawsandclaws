@@ -126,6 +126,18 @@ Segunda pasada de latencia:
 - el compañero remoto recibe una pequeña extrapolación basada en dirección, velocidad y RTT/2 para reducir la sensación de ir “atrás”;
 - la fuerza de reconciliación local ahora aumenta con el tamaño del error y usa una zona muerta mayor para reducir microtirones.
 
+## Visual polish 0.50.1
+
+Se agregó una pasada de calidad visual enfocada en cruces y superposición de sprites, sin cambiar reglas del backend:
+
+- Y-sort estable por punto de apoyo/pies, con bandas de profundidad de 4 px y desempate determinista para evitar que dos entidades intercambien capas entre frames;
+- separación visual suave entre Bruno y Nala cuando sus sprites quedan prácticamente en el mismo punto, sin modificar la posición autoritativa ni las colisiones;
+- cuerpo del jugador y nombre/barra de HP se renderizan en pasadas separadas, evitando que estructuras y props corten la UI flotante;
+- el jugador remoto usa `renderX/renderY` independientes y suavizados hacia el objetivo de red, mientras el jugador local queda pegado a la posición predicha para no agregar latencia visual;
+- hard snap visual remoto solo ante divergencias grandes.
+
+Pendiente de QA físico: cruces Bruno/Nala, caminar detrás/delante de casas/árboles/fuente, combate con varios enemigos, y revisar que no haya flicker de profundidad en ~130–140 ms RTT.
+
 ## Límites conocidos y QA pendiente
 
 - No se desplegó ni se probó esta beta en Cloudflare público. Falta PC + Android físico en redes distintas.
