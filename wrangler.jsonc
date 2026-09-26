@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "game-pawsandclaws",
+  "name": "game-pawsandclaws-beta050",
   "compatibility_date": "2026-09-21",
   "assets": {
     "directory": "./public"

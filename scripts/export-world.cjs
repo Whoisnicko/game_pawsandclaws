@@ -1,6 +1,6 @@
 // Export the exact collision geometry and spawn definitions from the stable client.
 const fs=require('node:fs'),vm=require('node:vm');
-const html=fs.readFileSync('public/index.html','utf8');
+const html=fs.readFileSync('public/game.js','utf8');
 function fn(name){const start=html.indexOf('function '+name+'(');if(start<0)throw Error(name);const lineEnd=html.indexOf('\n',start);if(html.slice(start,lineEnd).trimEnd().endsWith('}'))return html.slice(start,lineEnd);return html.slice(start,html.indexOf('\n}',start)+2)}
 const map=JSON.parse(html.match(/const EMBEDDED_VILLAGE_MAP = (.*);/)[1]);
 const names=['buildVillageProps','computeVillageVisuals','isNearFountainVisual','rebuildWorldCollisions','isInsideTownSafeZone','resolveVillageSpawn','projectEnemySpawnOutsideTown','applyWorldHotfixes','loadTiledMap','circleRectHit','npcPositionBlocked','makeEnemy','seedDynamicWorld'];
