@@ -76,6 +76,8 @@ Esto publica el juego como `game-pawsandclaws-beta050`, según el `wrangler.json
 
 - `npm run check`: validación sintáctica del cliente y backend, aprobada.
 - `npm test`: 10 pruebas de lógica aprobadas.
+- `wrangler deploy --dry-run`: compilación local de backend y frontend aprobada, sin publicar.
+- Asset individual más grande: 3.167.841 bytes, por debajo de 25 MiB.
 - `tests/browser-integration.cjs`: 16 comprobaciones aprobadas con Chromium y el runtime local real de Durable Objects (Miniflare), usando dos contextos separados: escritorio y móvil táctil.
 - Sin errores fatales de JavaScript durante la prueba de integración.
 - Crear sala y unir segundo cliente desde los botones reales.
