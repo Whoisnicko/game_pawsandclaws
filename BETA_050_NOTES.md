@@ -1,6 +1,6 @@
-# Beta 0.50 — Full Online Integration / Kamikaze
+# Beta 0.50 — Full Online Integration / Coop
 
-Esta beta se desarrolla exclusivamente en `beta-kamikaze-0.50`. No se mergeó a `main` y no se desplegó en Cloudflare.
+Esta beta se desarrolla exclusivamente en `beta-coop-0.50` (antes `beta-kamikaze-0.50`). No se mergeó a `main` y no se desplegó en Cloudflare.
 
 ## Base y estructura
 
@@ -52,7 +52,7 @@ Se mantienen `/create`, `/ws/PAWS-XXXX` y mensajes de bienvenida/ping. El RPG co
 Desde una copia del repositorio, en PowerShell o terminal:
 
 ```sh
-git switch beta-kamikaze-0.50
+git switch beta-coop-0.50
 git pull --ff-only
 cd backend
 npm ci
