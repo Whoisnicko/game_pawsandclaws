@@ -1890,6 +1890,105 @@ body.touch-mode.online-active #onlineHud{bottom:max(.35rem,env(safe-area-inset-b
   body.touch-mode .bagHead{position:sticky!important;top:0!important;z-index:4}
 }
 
+
+/* ===== Functional Polish 0.50.3 — compact game-like inventory ===== */
+@media (min-width:901px){
+  #inventoryLayer{padding:1rem!important}
+  #inventoryLayer .window{
+    width:min(64rem,92vw)!important;
+    height:min(38rem,86vh)!important;
+    max-height:86vh!important;
+    padding:.82rem 1rem!important;
+    border-radius:.9rem!important;
+  }
+  #inventoryLayer .windowHead{
+    min-height:3.5rem!important;
+    margin-bottom:.55rem!important;
+    padding-bottom:.45rem!important;
+    align-items:center!important;
+  }
+  #inventoryLayer .windowHead h2{
+    width:13.2rem!important;
+    min-width:13.2rem!important;
+    height:2.7rem!important;
+  }
+  #inventoryLayer .invLayout{
+    grid-template-columns:22rem minmax(0,1fr)!important;
+    gap:.8rem!important;
+    height:calc(100% - 4.1rem)!important;
+    align-items:stretch!important;
+  }
+  #inventoryLayer .paper{
+    height:100%!important;
+    min-height:0!important;
+    border-radius:.8rem!important;
+  }
+  #inventoryLayer .slot{
+    width:8rem!important;
+    min-height:3.45rem!important;
+    padding:.32rem .4rem!important;
+    border-radius:.62rem!important;
+  }
+  #inventoryLayer #slotHead{top:.45rem!important}
+  #inventoryLayer #slotWeapon{left:.45rem!important;top:6.55rem!important}
+  #inventoryLayer #slotArmor{right:.45rem!important;top:6.55rem!important}
+  #inventoryLayer #slotCharm{left:.45rem!important;bottom:3.55rem!important}
+  #inventoryLayer #slotBoots{right:.45rem!important;bottom:3.55rem!important}
+  #inventoryLayer #slotArtifact{bottom:.4rem!important}
+  #inventoryLayer .slotEquip{
+    grid-template-columns:1.8rem minmax(0,1fr)!important;
+    gap:.28rem!important;
+  }
+  #inventoryLayer .slotIconFrame{width:1.8rem!important;height:1.8rem!important}
+  #inventoryLayer .slotName{font-size:.62rem!important}
+  #inventoryLayer .slotPower{font-size:.52rem!important}
+  #inventoryLayer .bagColumn{
+    display:grid!important;
+    grid-template-rows:auto 5.15rem minmax(0,1fr)!important;
+    gap:.42rem!important;
+    overflow:hidden!important;
+  }
+  #inventoryLayer .bagHead{
+    min-height:2.25rem!important;
+    padding:.15rem 0 .35rem!important;
+  }
+  #inventoryLayer .bagHead b{font-size:1rem!important}
+  #inventoryLayer #itemDetail{
+    min-height:5.15rem!important;
+    height:5.15rem!important;
+    margin:0!important;
+    padding:.58rem .72rem .58rem 4.65rem!important;
+    border-radius:.72rem!important;
+  }
+  #inventoryLayer .itemDetailFrame{
+    left:.48rem!important;top:.4rem!important;width:3.65rem!important;height:4.15rem!important;
+  }
+  #inventoryLayer .itemDetailTitle{font-size:.92rem!important}
+  #inventoryLayer .itemDetailMeta,#inventoryLayer .itemDetailCompare{font-size:.62rem!important}
+  #inventoryLayer .bag{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    grid-auto-rows:4.35rem!important;
+    gap:.45rem!important;
+    height:100%!important;
+    overflow:auto!important;
+    padding-right:.15rem!important;
+    align-content:start!important;
+  }
+  #inventoryLayer .item{
+    min-height:4.35rem!important;
+    max-height:4.35rem!important;
+    padding:.38rem .45rem!important;
+    gap:.38rem!important;
+  }
+  #inventoryLayer .itemIconFrame{width:2.65rem!important;height:2.65rem!important}
+  #inventoryLayer .iname{font-size:.68rem!important}
+  #inventoryLayer .imeta{font-size:.56rem!important}
+  #inventoryLayer .tier{font-size:.52rem!important}
+  #inventoryLayer .tabBtn{padding:.42rem .68rem!important;font-size:.62rem!important}
+  #inventoryLayer .bagHeadActions{gap:.4rem!important}
+  #inventoryLayer .inventorySortBtn{min-height:1.8rem!important;font-size:.56rem!important}
+}
+
 </style>
 </head>
 <body>
