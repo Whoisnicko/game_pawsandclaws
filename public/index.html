@@ -1852,6 +1852,44 @@ body.touch-mode .onlineCompanionPortrait{width:1.9rem;height:1.9rem}
 body.touch-mode .onlineCompanionName{font-size:.46rem}.onlineCompanionMeta{font-size:.35rem}.onlineCompanionBar{height:.25rem;margin-top:.15rem}
 body.touch-mode.online-active #onlineHud{bottom:max(.35rem,env(safe-area-inset-bottom))!important;right:50%!important;transform:translateX(50%)!important;font-size:.42rem!important}
 
+
+/* ===== Functional Polish 0.50.2 — Naruto UX patterns, Paws & Claws art preserved ===== */
+.bagHeadActions{display:flex;align-items:center;justify-content:flex-end;gap:.55rem;min-width:0}
+.inventorySortBtn{
+  min-height:2rem!important;padding:.32rem .58rem!important;border-radius:.55rem!important;
+  background:rgba(18,31,44,.9)!important;border:1px solid rgba(121,154,184,.34)!important;
+  color:#dbe7f1!important;font-size:.62rem!important;white-space:nowrap
+}
+.inventorySortBtn:hover{border-color:rgba(214,182,112,.55)!important}
+#inventoryLayer .window{display:flex!important;flex-direction:column!important;overflow:hidden!important}
+#inventoryLayer .invLayout{min-height:0!important;flex:1 1 auto!important}
+#inventoryLayer .bagColumn{min-height:0!important}
+#inventoryLayer .bag{min-height:0!important;overscroll-behavior:contain;scrollbar-gutter:stable}
+#inventoryLayer .item{content-visibility:auto;contain-intrinsic-size:5rem}
+#miniWrap{will-change:top}
+#minimap{contain:strict}
+@media (min-width:901px){
+  #inventoryLayer .window{height:min(90vh,52rem)!important}
+  #inventoryLayer .invLayout{grid-template-columns:minmax(22rem,24rem) minmax(0,1fr)!important}
+  #inventoryLayer .paper{height:100%!important;min-height:0!important}
+  #inventoryLayer .bag{height:100%!important;overflow:auto!important}
+}
+@media (max-width:900px) and (orientation:landscape){
+  body.touch-mode #inventoryLayer .window{height:92dvh!important;width:96vw!important}
+  body.touch-mode #inventoryLayer .invLayout{grid-template-columns:minmax(12.5rem,34%) minmax(0,1fr)!important;gap:.45rem!important}
+  body.touch-mode #inventoryLayer .paper{height:100%!important;min-height:0!important}
+  body.touch-mode #inventoryLayer .bag{height:100%!important;overflow:auto!important}
+  body.touch-mode .inventorySortBtn{font-size:.52rem!important;padding:.22rem .4rem!important}
+}
+@media (max-width:900px) and (orientation:portrait){
+  body.touch-mode #inventoryLayer .window{height:94dvh!important;overflow:auto!important}
+  body.touch-mode #inventoryLayer .invLayout{display:grid!important;grid-template-columns:1fr!important;height:auto!important;overflow:visible!important}
+  body.touch-mode #inventoryLayer .paper{height:18rem!important;min-height:18rem!important}
+  body.touch-mode #inventoryLayer .bagColumn{overflow:visible!important}
+  body.touch-mode #inventoryLayer .bag{max-height:none!important;overflow:visible!important;grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  body.touch-mode .bagHead{position:sticky!important;top:0!important;z-index:4}
+}
+
 </style>
 </head>
 <body>
@@ -1940,7 +1978,7 @@ body.touch-mode.online-active #onlineHud{bottom:max(.35rem,env(safe-area-inset-b
       <div id="toast" class="uiPanel"><div class="toastInner"><img id="toastImg" class="toastIcon"><div><div id="toastTier" class="tier"></div><b id="toastName"></b><div id="toastInfo" class="small"></div></div></div></div><div id="questToast" class="questToast"></div>
       <div id="dialog" class="uiPanel"><div class="dialogShell"><div class="dialogTopBar"><div class="dialogNamePlate"><div class="dialogCrest" aria-hidden="true"></div><div class="dialogNameBlock"><div id="dialogName" class="dialogName"></div><div id="dialogRole" class="dialogRoleTag"></div></div></div><button id="dialogAction" class="dialogAction" type="button">Continuar</button></div><div class="dialogBody"><div class="dialogPortraitWrap"><img id="dialogPortrait" class="portrait"></div><div class="dialogCopy"><div id="dialogText" class="dialogText"></div><div class="dialogFooter"><div class="dialogHintRow"><span class="dialogHintBadge">E</span><div class="hint">Continuar · tocar durante el texto para completarlo</div></div><div class="dialogContinueDots" aria-hidden="true"><span></span><span></span><span></span></div></div></div></div></div></div>
 
-      <div id="inventoryLayer" class="overlay"><div class="window"><div class="windowHead"><div><h2>Inventario y equipamiento</h2><div id="invSub" class="muted"></div></div><div class="windowTabs"><button id="tabP1" class="tabBtn">Bruno</button><button id="tabP2" class="tabBtn">Nala</button><button id="closeInventory" class="tabBtn closeTab">Cerrar</button></div></div><div class="invLayout"><div class="paper"><canvas id="paperCanvas" width="390" height="520"></canvas><div id="slotHead" class="slot"></div><div id="slotWeapon" class="slot"></div><div id="slotArmor" class="slot"></div><div id="slotCharm" class="slot"></div><div id="slotBoots" class="slot"></div><div id="slotArtifact" class="slot"></div></div><div class="bagColumn"><div class="bagHead"><b>Mochila</b><span id="coinLabel"></span></div><div id="itemDetail" class="itemDetail"></div><div id="bag" class="bag"></div></div></div></div></div>
+      <div id="inventoryLayer" class="overlay"><div class="window"><div class="windowHead"><div><h2>Inventario y equipamiento</h2><div id="invSub" class="muted"></div></div><div class="windowTabs"><button id="tabP1" class="tabBtn">Bruno</button><button id="tabP2" class="tabBtn">Nala</button><button id="closeInventory" class="tabBtn closeTab">Cerrar</button></div></div><div class="invLayout"><div class="paper"><canvas id="paperCanvas" width="390" height="520"></canvas><div id="slotHead" class="slot"></div><div id="slotWeapon" class="slot"></div><div id="slotArmor" class="slot"></div><div id="slotCharm" class="slot"></div><div id="slotBoots" class="slot"></div><div id="slotArtifact" class="slot"></div></div><div class="bagColumn"><div class="bagHead"><b>Mochila</b><div class="bagHeadActions"><button id="sortInventory" class="inventorySortBtn" type="button">Orden: Recientes</button><span id="coinLabel"></span></div></div><div id="itemDetail" class="itemDetail"></div><div id="bag" class="bag"></div></div></div></div></div>
       <div id="questLayer" class="overlay"><div class="window"><div class="windowHead"><div><h2>Diario de misiones</h2><div class="muted">Trabajos activos del Pueblo Canino</div></div><div class="windowTabs"><button id="closeQuest" class="tabBtn closeTab">Cerrar</button></div></div><div class="questJournalLayout"><div id="questList" class="questList"></div><div id="questDetail" class="questDetail"></div></div></div></div>
       <div id="skillsLayer" class="overlay"><div class="window"><div class="windowHead"><div><h2>Habilidades</h2><div id="skillSub" class="muted"></div></div><div class="windowTabs"><button id="closeSkills" class="tabBtn closeTab">Cerrar</button></div></div><div class="skillGrid"><button class="skillCard" data-skill="power"><div class="skillGlyph">ATQ</div><b>Fauces de Guerra</b><p>Aumenta el daño base por rango.</p><div id="powerLevel"></div></button><button class="skillCard" data-skill="dash"><div class="skillGlyph">MOV</div><b>Paso Relámpago</b><p>Dash más largo, más eficiente y más seguro.</p><div id="dashLevel"></div></button><button class="skillCard" data-skill="howl"><div class="skillGlyph">MAG</div><b>Aullido Ancestral</b><p>Amplía el radio de la habilidad y su potencia.</p><div id="howlLevel"></div></button></div></div></div>
       <div id="shopLayer" class="overlay"><div class="window"><div class="windowHead"><div><h2 id="shopTitle">Herrería de Rufus</h2><div id="shopSubtitle" class="muted">Compra equipo, provisiones o usá materiales.</div></div><div class="windowTabs"><button id="closeShop" class="tabBtn closeTab">Cerrar</button></div></div><div id="shopGrid" class="shopGrid"></div></div></div>
