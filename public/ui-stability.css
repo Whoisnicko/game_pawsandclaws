@@ -89,6 +89,24 @@
   max-width:42vw!important;display:flex!important;flex-wrap:wrap!important;justify-content:center!important;gap:.28rem!important;
 }
 
+/* Stable transient message / hotbar positioning */
+#message{
+  left:max(.75rem,env(safe-area-inset-left))!important;
+  right:auto!important;
+  top:auto!important;
+  bottom:max(.75rem,env(safe-area-inset-bottom))!important;
+  transform:none!important;
+  width:auto!important;
+  max-width:min(30rem,calc(100vw - 1.5rem))!important;
+  min-height:0!important;
+  padding:.5rem .7rem!important;
+}
+#hotbar{
+  left:50%!important;right:auto!important;transform:translateX(-50%)!important;
+  bottom:max(.7rem,env(safe-area-inset-bottom))!important;
+}
+#onlinePartyHud{top:8.2rem!important}
+
 /* ---------- Shared overlays ---------- */
 .overlay{padding:clamp(.5rem,1.3vh,1rem)!important}
 .overlay .window{
@@ -101,6 +119,13 @@
   gap:.65rem!important;flex:0 0 auto!important;
 }
 .windowHead>div:first-child{min-width:0!important}
+#inventoryLayer .windowHead h2,#questLayer .windowHead h2,#skillsLayer .windowHead h2{
+  display:block!important;background-size:contain!important;background-repeat:no-repeat!important;background-position:left center!important;
+  max-width:100%!important;flex:0 1 auto!important;margin:0!important;
+}
+#inventoryLayer .windowHead h2{width:13rem!important;height:2.45rem!important}
+#questLayer .windowHead h2{width:14.5rem!important;height:2.65rem!important}
+#skillsLayer .windowHead h2{width:12.5rem!important;height:2.45rem!important}
 .windowHead .muted{overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
 .windowTabs{display:flex!important;align-items:center!important;gap:.38rem!important;flex:0 0 auto!important}
 
@@ -326,6 +351,14 @@
 
 /* ---------- Mobile ---------- */
 @media(max-width:900px){
+  body.touch-mode #message{
+    left:50%!important;right:auto!important;top:max(.3rem,env(safe-area-inset-top))!important;bottom:auto!important;
+    transform:translateX(-50%)!important;width:min(16rem,42vw)!important;max-width:42vw!important;
+    padding:.3rem .45rem!important;font-size:.5rem!important;
+  }
+  body.touch-mode #hotbar{display:none!important}
+  body.touch-mode #onlinePartyHud{top:6.4rem!important}
+
   #playerHud{width:min(23rem,calc(100vw - .9rem))!important}
   #playerHud .hudPremium{grid-template-columns:4.35rem minmax(0,1fr)!important;gap:.4rem!important}
   #playerHud .hudPremiumPortrait{width:4.35rem!important;height:4.35rem!important}
