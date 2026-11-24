@@ -1749,9 +1749,10 @@ function bindMenuAndUi(){
   if(closeQuestBtn)closeQuestBtn.onclick=()=>closeOverlay();
   if(closeSkillsBtn)closeSkillsBtn.onclick=()=>closeOverlay();
   if(closeShopBtn)closeShopBtn.onclick=()=>closeOverlay();
-  const tabP1=byId('tabP1'), tabP2=byId('tabP2');
+  const tabP1=byId('tabP1'), tabP2=byId('tabP2'), sortInventory=byId('sortInventory');
   if(tabP1)tabP1.onclick=()=>openInventory(1);
   if(tabP2)tabP2.onclick=()=>players&&players.length>1&&openInventory(2);
+  if(sortInventory)sortInventory.onclick=()=>cycleInventorySort();
   const victoryContinue=byId('victoryContinue'), victoryMenu=byId('victoryMenu');
   if(victoryContinue)victoryContinue.onclick=()=>closeOverlay();
   if(victoryMenu)victoryMenu.onclick=()=>returnToMainMenu();
