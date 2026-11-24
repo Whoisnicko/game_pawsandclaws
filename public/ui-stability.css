@@ -1,353 +1,380 @@
-/* Paws & Claws — UI Stabilization 0.50.5
-   Final canonical layout layer. Loaded after legacy inline CSS on purpose. */
+/* Paws & Claws — UI Stabilization 0.50.6
+   Canonical layout layer. This file intentionally wins over legacy inline CSS. */
 
 :root{
-  --pc-ui-gap: .75rem;
-  --pc-ui-edge: max(.7rem, env(safe-area-inset-left));
-  --pc-panel-bg: rgba(7,15,23,.96);
-  --pc-panel-border: rgba(112,145,173,.42);
+  --pc-panel:rgba(7,15,23,.965);
+  --pc-panel-soft:rgba(12,25,39,.94);
+  --pc-line:rgba(113,146,176,.42);
+  --pc-gold:#d8b46a;
+  --pc-text:#dce8f2;
 }
+*{box-sizing:border-box}
+.window,.uiPanel,.playerCard,.item,.slot,.itemDetail,.quest,.questDetail,.skillCard{box-sizing:border-box}
+.windowHead,.bagHead,.slotEquip,.item>div,.itemDetail,.trackerLine,.hudPremiumMain{min-width:0}
 
-/* Prevent common overflow from escaping ornate frames */
-#gameScreen, .overlay, .window, .uiPanel, .playerCard, .bagColumn, .paper,
-.item, .slot, .itemDetail, .quest, .questDetail, .skillCard {
-  box-sizing:border-box;
-}
-.window, .uiPanel, .playerCard, .item, .slot, .itemDetail, .quest, .questDetail, .skillCard{
-  overflow:hidden;
-}
-.windowHead, .bagHead, .slotEquip, .item>div, .itemDetail, .trackerLine{
-  min-width:0;
-}
-.windowHead h2, .windowHead .muted, .slotName, .slotPower, .iname, .imeta, .tier,
-.itemDetailTitle, .itemDetailMeta, .itemDetailCompare, .trackerLine span, .questTitle,
-.quest p, .questDetailDesc, .skillCard p {
-  overflow-wrap:anywhere;
-}
-.iname,.tier,.imeta,.slotName,.slotPower{
-  text-overflow:ellipsis;
-}
-
-/* Floating HUD: predictable corners, no accidental giant widths */
+/* ---------- HUD ---------- */
 #playerHud{
-  left:max(.7rem,env(safe-area-inset-left))!important;
-  top:max(.7rem,env(safe-area-inset-top))!important;
-  width:clamp(18rem,30vw,31rem)!important;
-  max-width:calc(100vw - 1.4rem)!important;
+  left:max(.65rem,env(safe-area-inset-left))!important;
+  top:max(.55rem,env(safe-area-inset-top))!important;
+  width:min(30rem,calc(100vw - 1.3rem))!important;
+  max-width:none!important;
 }
+#playerHud .playerCard{
+  width:100%!important;
+  overflow:hidden!important;
+  padding:.52rem .62rem .58rem!important;
+}
+#playerHud .hudPremium{
+  display:grid!important;
+  grid-template-columns:5.2rem minmax(0,1fr)!important;
+  gap:.55rem!important;
+  align-items:center!important;
+  min-width:0!important;
+}
+#playerHud .hudPremiumPortrait{
+  width:5.2rem!important;height:5.2rem!important;
+}
+#playerHud .hudPremiumPortraitLive{
+  width:3.55rem!important;height:3.55rem!important;
+}
+#playerHud .hudPremiumMain{width:100%!important;overflow:hidden!important}
+#playerHud .hudPremiumBanner{
+  width:min(12rem,100%)!important;
+  max-width:100%!important;
+  height:1.7rem!important;
+  background-size:100% 100%!important;
+}
+#playerHud .hudPremiumIdentity{min-width:0!important}
+#playerHud .hudName{font-size:1rem!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+#playerHud .hudRole{font-size:.46rem!important;white-space:nowrap!important}
+#playerHud .hudPremiumStats{
+  display:flex!important;flex-wrap:wrap!important;gap:.22rem!important;
+  margin:.12rem 0 .2rem!important;
+}
+#playerHud .hudPremiumStats .hudStat{font-size:.46rem!important}
+#playerHud .hudPremiumResources{min-width:0!important}
+#playerHud .hudArtRow{
+  display:grid!important;
+  grid-template-columns:4.2rem minmax(0,1fr) 3.7rem!important;
+  gap:.22rem!important;
+  align-items:center!important;
+  min-width:0!important;
+  min-height:1.38rem!important;
+}
+#playerHud .hudArtLabel{width:4.2rem!important;height:1.35rem!important;background-size:100% 100%!important}
+#playerHud .hudArtBar{width:100%!important;min-width:0!important;height:1.3rem!important;background-size:100% 100%!important}
+#playerHud .hudArtValue{
+  min-width:0!important;
+  font-size:.62rem!important;
+  text-align:right!important;
+  white-space:nowrap!important;
+}
+
+/* ---------- World HUD ---------- */
 #questTracker{
-  right:max(.7rem,env(safe-area-inset-right))!important;
-  top:max(.7rem,env(safe-area-inset-top))!important;
-  width:clamp(14.5rem,19vw,20rem)!important;
-  max-width:calc(100vw - 1.4rem)!important;
+  right:max(.65rem,env(safe-area-inset-right))!important;
+  top:max(.65rem,env(safe-area-inset-top))!important;
+  width:min(18rem,calc(100vw - 1.3rem))!important;
+  overflow:hidden!important;
 }
+#questTracker .trackerLine{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:.35rem!important}
+#questTracker .trackerLine span:first-child{overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
 #miniWrap{
-  right:max(.7rem,env(safe-area-inset-right))!important;
-  width:9rem!important;
-  height:9.5rem!important;
+  right:max(.65rem,env(safe-area-inset-right))!important;
+  width:9rem!important;height:8.7rem!important;
   z-index:19!important;
 }
-
-/* Central gameplay buttons must not collide with HUD */
-#topbar{
-  left:50%!important;
-  transform:translateX(-50%)!important;
-  width:max-content!important;
-  max-width:min(48vw,42rem)!important;
-  flex-wrap:wrap!important;
-  justify-content:center!important;
-  gap:.32rem!important;
+#topActions{
+  left:50%!important;transform:translateX(-50%)!important;
+  max-width:42vw!important;display:flex!important;flex-wrap:wrap!important;justify-content:center!important;gap:.28rem!important;
 }
 
-/* Canonical desktop inventory */
-#inventoryLayer{
-  padding:clamp(.55rem,1.4vh,1rem)!important;
-  align-items:center!important;
-  justify-content:center!important;
+/* ---------- Shared overlays ---------- */
+.overlay{padding:clamp(.5rem,1.3vh,1rem)!important}
+.overlay .window{
+  background:var(--pc-panel)!important;
+  border-color:rgba(208,167,87,.38)!important;
+  overflow:hidden!important;
 }
+.windowHead{
+  display:flex!important;align-items:center!important;justify-content:space-between!important;
+  gap:.65rem!important;flex:0 0 auto!important;
+}
+.windowHead>div:first-child{min-width:0!important}
+.windowHead .muted{overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+.windowTabs{display:flex!important;align-items:center!important;gap:.38rem!important;flex:0 0 auto!important}
+
+/* ---------- Inventory ---------- */
 #inventoryLayer .window{
   width:min(66rem,94vw)!important;
   height:min(39rem,90vh)!important;
   max-height:90vh!important;
-  display:flex!important;
-  flex-direction:column!important;
+  display:flex!important;flex-direction:column!important;
   padding:.82rem 1rem!important;
-  background:var(--pc-panel-bg)!important;
 }
 #inventoryLayer .windowHead{
-  flex:0 0 auto!important;
-  min-height:3.2rem!important;
-  margin:0 0 .55rem!important;
-  padding:0 0 .5rem!important;
-  align-items:center!important;
-  gap:.7rem!important;
-}
-#inventoryLayer .windowHead>div:first-child{min-width:0!important}
-#inventoryLayer .windowTabs{
-  margin-left:auto!important;
-  display:flex!important;
-  align-items:center!important;
-  gap:.38rem!important;
-  flex:0 0 auto!important;
+  min-height:3.1rem!important;margin:0 0 .5rem!important;padding:0 0 .45rem!important;
 }
 #inventoryLayer .invLayout{
   display:grid!important;
-  grid-template-columns:minmax(20rem,22rem) minmax(0,1fr)!important;
+  grid-template-columns:21.5rem minmax(0,1fr)!important;
   grid-template-rows:minmax(0,1fr)!important;
   gap:.75rem!important;
-  flex:1 1 auto!important;
-  min-height:0!important;
-  height:auto!important;
-  align-items:stretch!important;
+  flex:1 1 auto!important;min-height:0!important;height:auto!important;
 }
 #inventoryLayer .paper{
   position:relative!important;
-  width:100%!important;
-  height:100%!important;
-  min-height:0!important;
-  border-radius:.8rem!important;
+  width:100%!important;height:100%!important;min-height:0!important;
+  overflow:hidden!important;border-radius:.8rem!important;
+  background:linear-gradient(180deg,rgba(10,24,38,.98),rgba(6,15,25,.99))!important;
+  border:1px solid rgba(109,141,171,.32)!important;
 }
-#inventoryLayer .paper canvas{
-  width:100%!important;
-  height:100%!important;
-  object-fit:contain!important;
+#inventoryLayer #paperCanvas{display:none!important}
+#inventoryLayer .paperCharacter{
+  position:absolute!important;
+  left:50%!important;top:47%!important;
+  width:9.6rem!important;height:9.6rem!important;
+  transform:translate(-50%,-50%)!important;
+  background-repeat:no-repeat!important;
+  background-size:400% 300%!important;
+  background-position:0 0!important;
+  image-rendering:pixelated!important;
+  filter:drop-shadow(0 .25rem .3rem rgba(0,0,0,.42));
+  pointer-events:none;
 }
+#inventoryLayer .paperIdentity{
+  position:absolute!important;left:50%!important;top:66%!important;transform:translateX(-50%)!important;
+  width:11rem!important;text-align:center!important;color:#dce8f2!important;
+  font-family:ui-monospace,SFMono-Regular,Consolas,monospace!important;
+  text-shadow:0 1px 2px #000;
+}
+#inventoryLayer .paperIdentity strong{
+  display:block!important;color:#fff!important;font-size:1rem!important;margin-bottom:.32rem!important;
+}
+#inventoryLayer .paperIdentity div{font-size:.62rem!important;line-height:1.45!important;white-space:nowrap!important}
 #inventoryLayer .slot{
-  width:7.6rem!important;
-  min-height:3.3rem!important;
-  max-height:3.65rem!important;
-  padding:.3rem .38rem!important;
-  font-size:.58rem!important;
+  position:absolute!important;
+  width:7.45rem!important;
+  min-height:3.15rem!important;max-height:3.35rem!important;
+  padding:.28rem .34rem!important;
+  border-radius:.62rem!important;
+  overflow:hidden!important;
 }
-#inventoryLayer #slotHead{top:.4rem!important}
-#inventoryLayer #slotWeapon{left:.4rem!important;top:6.2rem!important}
-#inventoryLayer #slotArmor{right:.4rem!important;top:6.2rem!important}
-#inventoryLayer #slotCharm{left:.4rem!important;bottom:3.35rem!important}
-#inventoryLayer #slotBoots{right:.4rem!important;bottom:3.35rem!important}
-#inventoryLayer #slotArtifact{bottom:.35rem!important}
+#inventoryLayer #slotHead{top:.38rem!important;left:50%!important;transform:translateX(-50%)!important}
+#inventoryLayer #slotWeapon{left:.38rem!important;top:6.15rem!important}
+#inventoryLayer #slotArmor{right:.38rem!important;top:6.15rem!important}
+#inventoryLayer #slotCharm{left:.38rem!important;bottom:3.25rem!important}
+#inventoryLayer #slotBoots{right:.38rem!important;bottom:3.25rem!important}
+#inventoryLayer #slotArtifact{bottom:.32rem!important;left:50%!important;transform:translateX(-50%)!important}
+#inventoryLayer .slot .label{
+  display:block!important;font-size:.5rem!important;line-height:1!important;
+  margin-bottom:.14rem!important;white-space:nowrap!important;
+}
 #inventoryLayer .slotEquip{
-  display:grid!important;
-  grid-template-columns:1.75rem minmax(0,1fr)!important;
-  align-items:center!important;
-  gap:.25rem!important;
+  display:grid!important;grid-template-columns:1.65rem minmax(0,1fr)!important;gap:.25rem!important;align-items:center!important;
 }
-#inventoryLayer .slotIconFrame{
-  width:1.75rem!important;
-  height:1.75rem!important;
-  aspect-ratio:1!important;
+#inventoryLayer .slotName,#inventoryLayer .slotPower{
+  display:block!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;
 }
-#inventoryLayer .slotName{
-  display:block!important;
-  white-space:nowrap!important;
-  font-size:.6rem!important;
-  line-height:1.05!important;
-}
-#inventoryLayer .slotPower{
-  white-space:nowrap!important;
-  font-size:.5rem!important;
-}
+#inventoryLayer .slotName{font-size:.58rem!important}
+#inventoryLayer .slotPower{font-size:.49rem!important;color:#cbd9e5!important}
 #inventoryLayer .bagColumn{
   display:grid!important;
   grid-template-rows:auto 5rem minmax(0,1fr)!important;
-  gap:.42rem!important;
-  min-width:0!important;
-  min-height:0!important;
-  overflow:hidden!important;
+  gap:.42rem!important;min-width:0!important;min-height:0!important;overflow:hidden!important;
 }
 #inventoryLayer .bagHead{
-  display:flex!important;
-  align-items:center!important;
-  justify-content:space-between!important;
-  gap:.5rem!important;
-  min-height:2rem!important;
-  padding:.1rem 0 .32rem!important;
+  display:flex!important;align-items:center!important;justify-content:space-between!important;gap:.5rem!important;
+  min-height:2rem!important;padding:.08rem 0 .3rem!important;
 }
-#inventoryLayer .bagHeadActions{
-  display:flex!important;
-  align-items:center!important;
-  gap:.4rem!important;
-  min-width:0!important;
-}
+#inventoryLayer .bagHeadActions{display:flex!important;align-items:center!important;gap:.38rem!important;min-width:0!important}
 #inventoryLayer #coinLabel{white-space:nowrap!important}
 #inventoryLayer #itemDetail{
-  min-height:5rem!important;
-  max-height:5rem!important;
-  margin:0!important;
-  padding:.55rem .7rem .55rem 4.55rem!important;
-  border-radius:.72rem!important;
+  position:relative!important;
+  min-height:5rem!important;max-height:5rem!important;
+  margin:0!important;padding:.54rem .68rem .5rem 4.4rem!important;
+  border-radius:.7rem!important;overflow:hidden!important;
 }
-#inventoryLayer .itemDetailFrame{
-  left:.45rem!important;
-  top:.38rem!important;
-  width:3.55rem!important;
-  height:4rem!important;
-}
-#inventoryLayer .itemDetailTitle{
-  white-space:nowrap!important;
-  text-overflow:ellipsis!important;
-  overflow:hidden!important;
-  font-size:.9rem!important;
-}
+#inventoryLayer .itemDetailTitle,
 #inventoryLayer .itemDetailMeta,
 #inventoryLayer .itemDetailCompare{
-  font-size:.61rem!important;
-  line-height:1.18!important;
+  max-width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;
 }
+#inventoryLayer .itemDetailTitle{font-size:.88rem!important}
+#inventoryLayer .itemDetailMeta,#inventoryLayer .itemDetailCompare{font-size:.59rem!important}
 #inventoryLayer .bag{
-  display:grid!important;
-  grid-template-columns:repeat(2,minmax(0,1fr))!important;
-  grid-auto-rows:4.25rem!important;
-  gap:.42rem!important;
-  min-height:0!important;
-  height:100%!important;
-  overflow:auto!important;
-  padding:0 .16rem .15rem 0!important;
-  align-content:start!important;
-  overscroll-behavior:contain;
+  display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  grid-auto-rows:4.15rem!important;gap:.42rem!important;
+  height:100%!important;min-height:0!important;overflow:auto!important;
+  padding:0 .14rem .15rem 0!important;align-content:start!important;
 }
 #inventoryLayer .item{
-  display:grid!important;
-  grid-template-columns:2.65rem minmax(0,1fr)!important;
-  align-items:center!important;
-  min-width:0!important;
-  min-height:4.25rem!important;
-  max-height:4.25rem!important;
-  padding:.35rem .42rem!important;
-  gap:.38rem!important;
+  display:grid!important;grid-template-columns:2.7rem minmax(0,1fr)!important;
+  align-items:center!important;gap:.38rem!important;
+  min-height:4.15rem!important;max-height:4.15rem!important;
+  padding:.34rem .42rem!important;min-width:0!important;overflow:hidden!important;
 }
-#inventoryLayer .itemIconFrame{
-  width:2.65rem!important;
-  height:2.65rem!important;
-  aspect-ratio:1!important;
+#inventoryLayer .item>div:last-child{min-width:0!important;overflow:hidden!important}
+#inventoryLayer .iname,#inventoryLayer .imeta,#inventoryLayer .tier{
+  overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;
 }
+#inventoryLayer .iname{font-size:.66rem!important}
+#inventoryLayer .imeta{font-size:.54rem!important}
+#inventoryLayer .tier{font-size:.49rem!important}
+
+/* Clean, reliable icon holders. Same P&C icons, no stretched rarity frame. */
+#inventoryLayer .itemIconFrame,
+#inventoryLayer .slotIconFrame,
+#inventoryLayer .itemDetailFrame{
+  display:grid!important;place-items:center!important;
+  background-image:none!important;
+  background:linear-gradient(180deg,#12243a,#091522)!important;
+  border:1px solid rgba(136,167,194,.42)!important;
+  border-radius:.52rem!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.025)!important;
+  overflow:hidden!important;
+}
+#inventoryLayer .itemIconFrame{width:2.7rem!important;height:2.7rem!important}
+#inventoryLayer .slotIconFrame{width:1.65rem!important;height:1.65rem!important}
+#inventoryLayer .itemDetailFrame{
+  position:absolute!important;left:.45rem!important;top:.42rem!important;width:3.45rem!important;height:4.05rem!important;
+}
+#inventoryLayer .rarity-rare{border-color:#4aa9ef!important;box-shadow:inset 0 0 0 1px rgba(74,169,239,.15)!important}
+#inventoryLayer .rarity-epic{border-color:#a773e8!important;box-shadow:inset 0 0 0 1px rgba(167,115,232,.15)!important}
+#inventoryLayer .rarity-legendary{border-color:#e4b44d!important;box-shadow:inset 0 0 0 1px rgba(228,180,77,.18)!important}
 #inventoryLayer .itemIconFrame img,
 #inventoryLayer .slotIconFrame img,
 #inventoryLayer .itemDetailFrame img{
-  display:block!important;
-  width:58%!important;
-  height:58%!important;
-  max-width:100%!important;
-  max-height:100%!important;
-  margin:auto!important;
-  object-fit:contain!important;
-  image-rendering:pixelated;
-}
-#inventoryLayer .iname{font-size:.67rem!important;white-space:nowrap!important}
-#inventoryLayer .imeta{font-size:.55rem!important;white-space:nowrap!important}
-#inventoryLayer .tier{font-size:.5rem!important;white-space:nowrap!important}
-
-/* Broken image recovery: browser icon disappears, frame remains intentional */
-img.assetFallback{
-  opacity:.72!important;
-  filter:saturate(.7) brightness(.9);
+  display:block!important;width:82%!important;height:82%!important;max-width:82%!important;max-height:82%!important;
+  object-fit:contain!important;image-rendering:pixelated!important;margin:auto!important;
 }
 
-/* Quest / skills / shop: shared safe sizing */
-#questLayer .window,#skillsLayer .window,#shopLayer .window{
-  width:min(62rem,94vw)!important;
-  max-height:90vh!important;
-  overflow:auto!important;
-  padding:.9rem 1rem!important;
+/* ---------- Quest journal ---------- */
+#questLayer .window{
+  width:min(60rem,94vw)!important;
+  height:min(34rem,88vh)!important;
+  max-height:88vh!important;
+  display:flex!important;flex-direction:column!important;
+  padding:.82rem 1rem!important;
 }
+#questLayer .windowHead{min-height:3.1rem!important;margin:0 0 .45rem!important;padding:0 0 .42rem!important}
 #questLayer .questJournalLayout{
-  min-height:0!important;
-  grid-template-columns:minmax(15rem,34%) minmax(0,1fr)!important;
+  display:grid!important;
+  grid-template-columns:minmax(17rem,20rem) minmax(0,1fr)!important;
+  grid-template-rows:minmax(0,1fr)!important;
   gap:.7rem!important;
+  padding:.55rem!important;
+  flex:1 1 auto!important;min-height:0!important;height:auto!important;
 }
-#questLayer .questList,#questLayer .questDetail{
-  min-width:0!important;
+#questLayer .questList{
+  display:grid!important;grid-template-columns:1fr!important;gap:.48rem!important;
+  align-content:start!important;min-width:0!important;min-height:0!important;
+  overflow:auto!important;padding:0 .12rem 0 0!important;
+}
+#questLayer .quest{
+  min-width:0!important;min-height:4.35rem!important;
+  padding:.68rem .75rem!important;overflow:hidden!important;
+}
+#questLayer .questTop{
+  display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:.4rem!important;align-items:start!important;
+}
+#questLayer .questTitle{
+  min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;
+}
+#questLayer .questState{white-space:nowrap!important}
+#questLayer .quest p,#questLayer .reward{
+  margin:.25rem 0 0!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;
+}
+#questLayer .questDetail{
+  position:relative!important;
+  width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;
   overflow:auto!important;
+  padding:2.6rem 3.35rem 2.25rem 3.8rem!important;
+  background:url("assets/asset_029_e4cea76e.png") center/100% 100% no-repeat!important;
+  color:#4b3825!important;
+  filter:drop-shadow(0 .3rem .5rem rgba(0,0,0,.25))!important;
+}
+#questLayer .questDetail>*{position:relative!important;z-index:1!important;max-width:100%!important}
+#questLayer .questDetailTitle{
+  font-size:1.28rem!important;line-height:1.15!important;text-align:center!important;
+  margin:0 0 .7rem!important;color:#4b321e!important;
+  white-space:normal!important;overflow-wrap:anywhere!important;
+}
+#questLayer .questDetailState{
+  font-size:.62rem!important;text-align:center!important;margin:0 0 .8rem!important;
+}
+#questLayer .questDetailDesc{
+  font-size:.82rem!important;line-height:1.45!important;color:#4c3927!important;
+  margin:0!important;white-space:normal!important;overflow-wrap:anywhere!important;
+}
+#questLayer .questDetailSection{
+  margin-top:.85rem!important;padding-top:.62rem!important;border-top:1px solid rgba(94,65,37,.28)!important;
+  font-size:.82rem!important;
+}
+#questLayer .questDetailReward{margin-top:.3rem!important;overflow-wrap:anywhere!important}
+
+/* ---------- Skills / Shop / Dialog ---------- */
+#skillsLayer .window,#shopLayer .window{
+  width:min(60rem,94vw)!important;max-height:88vh!important;overflow:auto!important;padding:.85rem 1rem!important;
 }
 #skillsLayer .skillGrid,#shopLayer .shopGrid{
-  grid-template-columns:repeat(auto-fit,minmax(12rem,1fr))!important;
-  gap:.65rem!important;
+  grid-template-columns:repeat(auto-fit,minmax(12rem,1fr))!important;gap:.65rem!important;
 }
-#skillsLayer .skillCard,#shopLayer .shopCard{
-  min-width:0!important;
-}
-
-/* Dialog text always stays within the ornate shell */
 #dialog{max-width:min(56rem,94vw)!important}
 #dialog .dialogShell,#dialog .dialogBody,#dialog .dialogCopy{min-width:0!important}
-#dialogText{
-  max-width:100%!important;
-  overflow-wrap:anywhere!important;
-  white-space:normal!important;
-}
+#dialogText{max-width:100%!important;white-space:normal!important;overflow-wrap:anywhere!important}
 
-/* Responsive tablet/mobile */
+/* ---------- Mobile ---------- */
 @media(max-width:900px){
-  #playerHud{width:min(22rem,62vw)!important}
+  #playerHud{width:min(23rem,calc(100vw - .9rem))!important}
+  #playerHud .hudPremium{grid-template-columns:4.35rem minmax(0,1fr)!important;gap:.4rem!important}
+  #playerHud .hudPremiumPortrait{width:4.35rem!important;height:4.35rem!important}
+  #playerHud .hudPremiumPortraitLive{width:3rem!important;height:3rem!important}
+  #playerHud .hudArtRow{grid-template-columns:3.55rem minmax(0,1fr) 3.25rem!important}
+  #playerHud .hudArtLabel{width:3.55rem!important;height:1.18rem!important}
+  #playerHud .hudArtBar{height:1.14rem!important}
+  #playerHud .hudArtValue{font-size:.54rem!important}
   #questTracker{width:min(14rem,36vw)!important}
-  #topbar{max-width:48vw!important}
-  body.touch-mode #miniWrap{
-    width:6.6rem!important;
-    height:7rem!important;
-    right:max(.35rem,env(safe-area-inset-right))!important;
-    bottom:7.7rem!important;
-    top:auto!important;
-  }
-  body.touch-mode #inventoryLayer .window{
-    width:97vw!important;
-    height:94dvh!important;
-    max-height:94dvh!important;
-    padding:.55rem!important;
-  }
-  body.touch-mode #inventoryLayer .windowHead{
-    min-height:2.55rem!important;
-    margin-bottom:.35rem!important;
-  }
-  body.touch-mode #inventoryLayer .invLayout{
-    grid-template-columns:minmax(12rem,35%) minmax(0,1fr)!important;
-    gap:.4rem!important;
-  }
-  body.touch-mode #inventoryLayer .paper{height:100%!important}
-  body.touch-mode #inventoryLayer .slot{
-    width:5.5rem!important;
-    min-height:2.65rem!important;
-    max-height:2.85rem!important;
-    padding:.22rem!important;
-  }
-  body.touch-mode #inventoryLayer #slotWeapon,
-  body.touch-mode #inventoryLayer #slotArmor{top:5rem!important}
-  body.touch-mode #inventoryLayer #slotCharm,
-  body.touch-mode #inventoryLayer #slotBoots{bottom:2.75rem!important}
-  body.touch-mode #inventoryLayer .bagColumn{
-    grid-template-rows:auto 4.45rem minmax(0,1fr)!important;
-  }
-  body.touch-mode #inventoryLayer #itemDetail{
-    min-height:4.45rem!important;
-    max-height:4.45rem!important;
-    padding-left:4rem!important;
-  }
-  body.touch-mode #inventoryLayer .itemDetailFrame{
-    width:3rem!important;height:3.45rem!important
-  }
-  body.touch-mode #inventoryLayer .bag{
-    grid-template-columns:repeat(2,minmax(0,1fr))!important;
-    grid-auto-rows:3.85rem!important;
-  }
-  body.touch-mode #inventoryLayer .item{
-    grid-template-columns:2.25rem minmax(0,1fr)!important;
-    min-height:3.85rem!important;max-height:3.85rem!important
-  }
-  body.touch-mode #inventoryLayer .itemIconFrame{width:2.25rem!important;height:2.25rem!important}
-}
+  body.touch-mode #miniWrap{width:6.2rem!important;height:6.5rem!important;right:.35rem!important;bottom:7.4rem!important;top:auto!important}
 
-@media(max-width:680px) and (orientation:portrait){
-  #playerHud{width:calc(100vw - 1.2rem)!important;max-width:none!important}
-  #questTracker{display:none!important}
-  #topbar{display:none!important}
-  body.touch-mode #miniWrap{width:5.8rem!important;height:6.2rem!important;bottom:7.3rem!important}
-  body.touch-mode #inventoryLayer .window{overflow:auto!important}
-  body.touch-mode #inventoryLayer .invLayout{
-    grid-template-columns:1fr!important;
-    grid-template-rows:16rem auto!important;
-    height:auto!important;
-    overflow:visible!important;
+  body.touch-mode #inventoryLayer .window{
+    width:97vw!important;height:94dvh!important;max-height:94dvh!important;padding:.5rem!important;
   }
-  body.touch-mode #inventoryLayer .paper{height:16rem!important;min-height:16rem!important}
+  body.touch-mode #inventoryLayer .invLayout{
+    grid-template-columns:minmax(12rem,35%) minmax(0,1fr)!important;gap:.4rem!important;
+  }
+  body.touch-mode #inventoryLayer .paperCharacter{width:7rem!important;height:7rem!important;top:47%!important}
+  body.touch-mode #inventoryLayer .paperIdentity{top:66%!important;width:8.5rem!important}
+  body.touch-mode #inventoryLayer .paperIdentity strong{font-size:.78rem!important}
+  body.touch-mode #inventoryLayer .paperIdentity div{font-size:.5rem!important}
+  body.touch-mode #inventoryLayer .slot{width:5.4rem!important;min-height:2.55rem!important;max-height:2.75rem!important}
+  body.touch-mode #inventoryLayer #slotWeapon,
+  body.touch-mode #inventoryLayer #slotArmor{top:4.85rem!important}
+  body.touch-mode #inventoryLayer #slotCharm,
+  body.touch-mode #inventoryLayer #slotBoots{bottom:2.65rem!important}
+  body.touch-mode #inventoryLayer .bagColumn{grid-template-rows:auto 4.4rem minmax(0,1fr)!important}
+  body.touch-mode #inventoryLayer #itemDetail{min-height:4.4rem!important;max-height:4.4rem!important;padding-left:3.85rem!important}
+  body.touch-mode #inventoryLayer .itemDetailFrame{width:2.95rem!important;height:3.45rem!important}
+  body.touch-mode #inventoryLayer .bag{grid-auto-rows:3.75rem!important}
+  body.touch-mode #inventoryLayer .item{grid-template-columns:2.25rem minmax(0,1fr)!important;min-height:3.75rem!important;max-height:3.75rem!important}
+  body.touch-mode #inventoryLayer .itemIconFrame{width:2.25rem!important;height:2.25rem!important}
+
+  body.touch-mode #questLayer .window{width:97vw!important;height:92dvh!important;max-height:92dvh!important;padding:.5rem!important}
+  body.touch-mode #questLayer .questJournalLayout{grid-template-columns:minmax(11rem,38%) minmax(0,1fr)!important;gap:.42rem!important;padding:.35rem!important}
+  body.touch-mode #questLayer .questDetail{padding:1.8rem 2.25rem 1.55rem 2.55rem!important}
+  body.touch-mode #questLayer .questDetailTitle{font-size:.92rem!important}
+  body.touch-mode #questLayer .questDetailDesc,
+  body.touch-mode #questLayer .questDetailSection{font-size:.59rem!important}
+}
+@media(max-width:680px) and (orientation:portrait){
+  #playerHud{width:calc(100vw - .7rem)!important}
+  #questTracker,#topActions{display:none!important}
+  body.touch-mode #inventoryLayer .window{overflow:auto!important}
+  body.touch-mode #inventoryLayer .invLayout{grid-template-columns:1fr!important;grid-template-rows:15.5rem auto!important;height:auto!important;overflow:visible!important}
+  body.touch-mode #inventoryLayer .paper{height:15.5rem!important;min-height:15.5rem!important}
   body.touch-mode #inventoryLayer .bagColumn{overflow:visible!important}
   body.touch-mode #inventoryLayer .bag{height:auto!important;max-height:none!important;overflow:visible!important}
-  body.touch-mode #inventoryLayer .windowTabs{flex-wrap:wrap!important}
+  body.touch-mode #questLayer .window{overflow:auto!important}
+  body.touch-mode #questLayer .questJournalLayout{grid-template-columns:1fr!important;grid-template-rows:auto 19rem!important;height:auto!important;overflow:visible!important}
+  body.touch-mode #questLayer .questDetail{min-height:19rem!important}
 }
