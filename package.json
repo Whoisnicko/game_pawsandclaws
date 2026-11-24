@@ -1,7 +1,7 @@
 {
   "name": "game-pawsandclaws",
   "private": true,
-  "version": "0.50.5",
+  "version": "0.50.6",
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
