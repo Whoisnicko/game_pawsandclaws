@@ -1,3 +1,9 @@
+// Build label
+{
+  const badge=document.getElementById('gameVersionBadge');
+  if(badge&&window.PAWS_BUILD?.label)badge.textContent=window.PAWS_BUILD.label;
+}
+
 // Bootstrap
 bindTouchControls();
 bindGameplayKeyboard();
