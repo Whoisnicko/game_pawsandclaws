@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>Paws & Claws Beta 0.50 — Online Coop</title>
+<title>Paws & Claws v0.50.4 — Online Coop</title>
 <style>
 :root{
   --panel:#16202a; --panel2:#1f2b37; --line:#405166; --text:#f1f5f7; --muted:#9dadbb;
@@ -1989,6 +1989,27 @@ body.touch-mode.online-active #onlineHud{bottom:max(.35rem,env(safe-area-inset-b
   #inventoryLayer .inventorySortBtn{min-height:1.8rem!important;font-size:.56rem!important}
 }
 
+
+/* Visible build marker: confirms GitHub -> Cloudflare deployment version */
+.gameVersionBadge{
+  position:absolute;
+  left:clamp(.65rem,1.35vw,1.35rem);
+  bottom:clamp(.55rem,1.15vw,1rem);
+  z-index:30;
+  padding:.34rem .58rem;
+  border-radius:.46rem;
+  border:1px solid rgba(236,194,94,.48);
+  background:rgba(5,12,20,.72);
+  color:#f4ddb0;
+  font:700 clamp(.62rem,.72vw,.78rem)/1.1 ui-monospace,SFMono-Regular,Consolas,monospace;
+  letter-spacing:.045em;
+  text-shadow:0 1px 2px #000;
+  box-shadow:0 .18rem .5rem rgba(0,0,0,.32);
+  backdrop-filter:blur(2px);
+  pointer-events:none;
+  user-select:none;
+}
+
 </style>
 </head>
 <body>
@@ -2005,6 +2026,7 @@ body.touch-mode.online-active #onlineHud{bottom:max(.35rem,env(safe-area-inset-b
           <button class="imageHotspot mainExit" id="menuExit" type="button" aria-label="Exit"></button>
         </div>
         <div id="menuStatus" class="imageMenuStatus hidden" role="status"></div>
+        <div id="gameVersionBadge" class="gameVersionBadge" aria-label="Versión del juego">v0.50.4 · Multiplayer</div>
       </div>
     </div>
 
@@ -2103,6 +2125,7 @@ body.touch-mode.online-active #onlineHud{bottom:max(.35rem,env(safe-area-inset-b
     </div>
   </section>
 </div>
+<script src="version.js"></script>
 <script src="game.js"></script>
 <script src="online-beta050.js"></script>
 <script src="bootstrap.js"></script>
