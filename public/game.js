@@ -1655,11 +1655,15 @@ function renderInventory(){
   const sig=inventorySignature(p);
   if(sig===inventoryUiSignature){const selected=p.inventory.find(i=>i.id===selectedItemId)||p.inventory[0]||Object.values(p.equip).find(Boolean)||null;renderItemDetail(p,selected);return;}
   inventoryUiSignature=sig;
-  pctx.clearRect(0,0,paperCanvas.width,paperCanvas.height);pctx.imageSmoothingEnabled=false;
-  const im=drawAssets[p.sheet];if(im){const f=frameXY(0);pctx.drawImage(im,f.sx,f.sy,SHEET_CELL,SHEET_CELL,98,128,194,194)}
-  pctx.textAlign='center';pctx.fillStyle='#fff';pctx.font='bold 20px monospace';pctx.fillText(p.name,195,344);
-  pctx.font='bold 12px monospace';pctx.fillStyle='#d8e7f4';pctx.fillText(`ATQ ${p.attack}  ·  DEF ${p.def}`,195,367);
-  pctx.fillStyle='#9fb4c6';pctx.fillText(`HP ${p.maxHp}  ·  MP ${p.maxMp}`,195,386);
+  pctx.clearRect(0,0,paperCanvas.width,paperCanvas.height);
+  const paperCharacter=document.getElementById('paperCharacter');
+  if(paperCharacter){
+    paperCharacter.style.backgroundImage=`url('${uiAssetPath(p.sheet)}')`;
+  }
+  const paperName=document.getElementById('paperName'),paperStatsA=document.getElementById('paperStatsA'),paperStatsB=document.getElementById('paperStatsB');
+  if(paperName)paperName.textContent=p.name;
+  if(paperStatsA)paperStatsA.textContent=`ATQ ${p.attack} · DEF ${p.def}`;
+  if(paperStatsB)paperStatsB.textContent=`HP ${p.maxHp} · MP ${p.maxMp}`;
   const ids={head:'slotHead',weapon:'slotWeapon',armor:'slotArmor',charm:'slotCharm',boots:'slotBoots',artifact:'slotArtifact'};
   Object.keys(ids).forEach(k=>{const el=document.getElementById(ids[k]),it=p.equip[k];el.style.borderColor=it?it.color:'#405166';el.innerHTML=`<div class="label">${SLOT_LABEL[k]}</div>${it?`<div class="slotEquip"><span class="slotIconFrame ${uiRarityClass(it)}"><img src="${uiAssetPath(it.asset)}" onerror="uiImgOnError(this)"></span><div class="slotMeta"><div class="slotName" style="color:${it.color}">${it.name}</div><div class="slotPower">Poder +${it.power}</div></div></div>`:`<div class="slotEmpty">Vacío</div>`}`});
   const bag=document.getElementById('bag'),items=sortedInventoryItems(p);
